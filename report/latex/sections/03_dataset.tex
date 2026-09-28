@@ -1,0 +1,60 @@
+\section{The CASIA v2.0 Dataset and Its Pitfalls}\label{sec:dataset}
+
+We use CASIA~v2.0~\cite{dong2013casia}, which has 12,614 images: 7,491 authentic and 5,123 tampered. The tampered
+images were made with editing software as either \emph{copy-move} (a region duplicated within one image) or
+\emph{splicing} (a region pasted from a different image). There are nine scene categories, and most images are
+small: 85.8\% of authentic and 64.7\% of tampered images are $384\times256$ or $256\times384$ pixels.
+
+\subsection{Labels and Masks}\label{sec:dataset-labels}
+
+The forgery type is normally read from the file-name letter (Tp\_S = copy-move, Tp\_D = splicing), which gives
+3,274 copy-move and 1,849 splicing images. For 115 images this letter conflicts with other evidence: the letter in
+the mask's file name, and whether the host and donor ids are equal (equal ids mean copy-move). We take the majority
+of these three votes, which changes 99 labels (60 splicing $\rightarrow$ copy-move, 39 copy-move $\rightarrow$
+splicing). The corrected type (Table~\ref{tab:dataset-format}) is used for stratification and all per-type
+results.
+
+\begin{table}[t]
+\centering
+\caption{Class and file format (corrected forgery type)}\label{tab:dataset-format}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Class & Images & JPEG & TIFF & BMP \\
+\midrule
+Authentic & 7,491 & 7,437 & 0 & 54 \\
+Copy-move & 3,295 & 967 & 2,328 & 0 \\
+Splicing & 1,828 & 1,097 & 731 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each tampered image has a binary mask marking the content taken from the donor. Because 142 mask names differ
+from their image name, we match masks on the trailing tamper id, which is unique across the dataset; every tampered
+image then has exactly one mask. Of the 5,123 masks, 19 are unusable for pixel-level scoring (5 transposed, 12
+with other sizes, 2 covering more than 95\% of the image). These images remain in the classification experiments
+but are excluded from localisation scoring, which leaves 5,104 valid masks. Checked against where the tampered image
+differs from its background image, the 5,034 checkable masks have median recall 0.885 and median precision 0.991,
+so the masks are generally accurate; 52 masks with recall $<0.2$ are flagged but not removed.
+
+Tampered regions are small: the median tampered area is 3.1\% of the image (10th percentile 0.5\%, 90th
+percentile 28\%). We therefore report localisation in three area buckets: $<1\%$ (1,114 images), 1--5\%
+(2,023) and $>5\%$ (1,967). A tampered file name names two authentic images; we treat the first-named one as the
+\emph{host}, since it supplies most pixels in 1,689 of the 1,778 splicing-named images with differing ids. In 23
+images the second-named image supplies most pixels (18 large pastes and 5 apparently swapped ids); these are
+additionally grouped with the second-named image (Section~\ref{sec:leakage}). Details of the mask audit and the
+host analysis are in Appendix~\ref{app:dataset}.
+
+\subsection{Pitfalls That Affect Evaluation}\label{sec:dataset-pitfalls}
+
+\emph{(1) File format tracks the label.} 60\% of tampered images are uncompressed TIFF, but no authentic image is
+(Table~\ref{tab:dataset-format}). \emph{(2) JPEG settings track the label.} Among JPEG files, 89.1\% of authentic
+images use a standard libjpeg (IJG) quantisation table, compared with 0\% of tampered images, whose tables look like
+those written by editing software. The closest IJG quality factor is mostly 84 or 90 for authentic images and 93
+for tampered ones. \emph{(3) Image size tracks the label.} Tampered images are more often $640\times480$ or
+$800\times600$. \emph{(4) Duplicates.} 196 authentic images appear twice under different ids with identical
+pixels, and about 480 tampered images are near-identical to an authentic image other than their named host.
+\emph{(5) Label noise in names}, corrected as described above.
+
+Points 1--3 mean that a classifier can separate the classes without looking at any forensic evidence.
+Section~\ref{sec:leakage} measures this directly.

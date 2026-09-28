@@ -1,0 +1,36 @@
+\section{Chosen Parameters and Sweeps}\label{app:params}
+
+Table~\ref{tab:params-chosen} lists the parameters chosen by the coordinate-ascent sweeps of
+Section~\ref{sec:params} (protocol B, validation sample); changes from the default are in bold. Fig.~\ref{fig:sweeps}
+shows the sweep curves. The sweeps were run with \texttt{scripts/sweep\_params.py}; the chosen values are stored in
+\texttt{config.yaml}.
+
+
+
+\begin{table}[!ht]
+\centering
+\caption{Chosen parameters per module (changes from the default in bold)}\label{tab:params-chosen}
+\footnotesize
+\begin{tabular}{ll}
+\toprule
+Module & Chosen parameters \\
+\midrule
+ELA & $\mathbf{q = 85}$, block 8, \textbf{texture} $\mathbf{c = 16}$ \\
+Patch-histogram $\chi^2$ & $\mathbf{q = 75}$, \textbf{patch 16}, 16 bins \\
+Noise level & Immerk{\ae}r, block 8, \textbf{edge quantile 0.8, min.\ block std 2} \\
+JPEG ghosts & block 16, \textbf{min.\ std 4} \\
+DCT double quantisation & \textbf{15 frequencies}, $\boldsymbol{\alpha = 0.05}$ (permutation-test level) \\
+Edge sharpness & \textbf{Canny 30 / 90}, block 16 \\
+Copy-move keypoints & SIFT, ratio 0.6, contrast 0.01, mirror matching (defaults kept) \\
+Copy-move blocks & tol 1.5, min.\ std 4, 8 votes, mirror matching (defaults kept) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{fig_sweeps.png}
+\caption{Parameter sweeps under protocol B on the validation sample: image AUC (blue, circles) and pixel AUC (red,
+squares) for each value of each swept parameter, one row per module.}
+\label{fig:sweeps}
+\end{figure}

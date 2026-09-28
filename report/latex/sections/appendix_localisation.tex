@@ -1,0 +1,53 @@
+\section{Localisation: Additional Details}\label{app:localisation}
+\begingroup\sloppy\urlstyle{tt}
+Details behind Section~\ref{sec:localisation}. The fusion code is in \url{src/forgery/localize/fusion.py}; the scripts are \url{scripts/extract_maps.py}, \url{scripts/run_phase6.py} and \url{scripts/phase6_gating.py}.
+
+\paragraph{Training cells and post-processing grid} The learned fusions are trained on cells of training images: every tampered training image with a valid mask, plus 1,000 authentic training images. Up to 400 tampered and 400 untampered cells are sampled per image, about 2.1--2.3 million cells in all. The post-processing grid is $t \in 0.05\ldots0.95$; opening $\in \{1, 5, 9\}$; closing $\in \{1, 9, 17\}$; minimum area $\in \{0, 0.2\%, 1\%\}$. The threshold is chosen first, without morphology; the morphology settings are then chosen at that threshold. The margins between the learned fusions are small, so selecting the main method on the same numbers matters little.
+
+\paragraph{Confidence intervals} 95\% group-bootstrap CIs for the gradient-boosted fusion (Table~\ref{tab:loc-methods}): under R, F1\ci{0.168}{0.200}, IoU\ci{0.108}{0.130}, MCC\ci{0.140}{0.176}; under B, F1\ci{0.237}{0.282}, IoU\ci{0.160}{0.193}, MCC\ci{0.230}{0.277}. The threshold-free pixel ROC-AUC is computed on every second pixel. The oracle F1 uses the best threshold per image without morphology; post-processing beats it on some images, so it is not a strict upper bound.
+
+\begin{table}[!ht]
+\centering
+\caption{Gradient-boosted fusion by tampered area (validation).}
+\label{tab:app-loc-area}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Tampered area & F1, R & Pixel AUC, R & F1, B \\
+\midrule
+$<$ 1\% & 0.034 & 0.617 & 0.10 \\
+1--5\% & 0.162 & 0.736 & 0.27 \\
+$>$ 5\% & 0.309 & 0.706 & 0.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:app-loc-area} gives the per-area breakdown: very small regions are essentially not localised, although their pixel AUC is still above chance.
+
+\paragraph{Gating} On authentic images the fused mask is rarely empty: under R, with the final (deployed) post-processing, gradient boosting marks some region on 89\% of authentic validation images, with a mean area of 5.6\%; the out-of-sample figures are almost the same (88.8\%, 5.7\%). The system therefore shows the mask only when the calibrated image-level verdict is not ``authentic''. For evaluation, the out-of-fold forest scores of the validation images are mapped through the deployed model's isotonic calibrator and gated with the deployed band. This approximates fully out-of-fold calibrated scores; the calibrator itself was fitted on grouped out-of-fold scores of the whole dev set, validation included. Table~\ref{tab:loc-gating} shows that gating removes a large share of false regions at a small cost in tampered-image F1, because images judged authentic by mistake lose their mask. The gated F1 values use the final post-processing, tuned on all validation images, so they are slightly optimistic compared with Table~\ref{tab:loc-methods}.
+
+\begin{table}[!ht]
+\centering
+\caption{Effect of gating on validation images (ungated $\to$ gated).}
+\label{tab:loc-gating}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+ & Authentic & Mean false & Tampered & Tampered \\
+ & with a region & area & shown & F1 \\
+\midrule
+R ($\pm$0.24) & 89\% $\to$ \textbf{42\%} & 5.6\% $\to$ 3.7\% & 84\% & 0.186 $\to$ 0.175 \\
+B ($\pm$0.04) & 71\% $\to$ \textbf{10\%} & 2.5\% $\to$ 0.7\% & 76\% & 0.261 $\to$ 0.225 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Deployed localiser} \texttt{models/localizer\_\{R,B\}.joblib} holds the gradient-boosting fusion (trained on training cells) and the post-processing tuned on all validation images: R, $t = 0.60$, no opening, no closing, minimum area 0.2\%; B, $t = 0.70$, no opening, closing 17, minimum area 0.2\%. \texttt{detect.py} writes \texttt{mask.png} and \texttt{overlay.png} next to \texttt{report.json}. The localiser reuses the evidence maps that \texttt{detect()} already computes, so localisation adds almost no run time. Tampered images without a valid mask (19 in the whole dataset, 1 of them in the validation set) are excluded from localisation scoring.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.6\textwidth]{fig_loc_examples_R.png}
+\caption{Localisation examples under protocol R (validation): two best, two median, two worst and two random images. Columns: image with forgery type and tampered area, ground-truth mask, fused gradient-boosting probability, and final mask with its pixel F1. Failure modes visible here: tiny regions, where the probability peak lands elsewhere; large uniform pasted areas (sky, water); and textured authentic regions that attract spurious evidence.}
+\label{fig:loc-examples}
+\end{figure}
+\par\endgroup

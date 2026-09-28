@@ -1,0 +1,22 @@
+\begin{abstract}
+CASIA~v2.0 is one of the most widely used benchmarks for image forgery detection, and error-level-analysis (ELA)
+classifiers commonly report accuracies around 90\% on it. We show that the benchmark as released can be solved
+without looking at image content: file metadata alone separates authentic from tampered images with 0.990
+balanced accuracy (AUC 0.999), because most tampered images are uncompressed TIFF files while the authentic images
+are JPEGs. We therefore evaluate under leak-controlled protocols that re-encode every image (B) or resample and then
+re-encode it (R), and we measure every method against the shortcut features that survive each protocol. Our
+detector is built from eight interpretable classical techniques covering point processing, histogram processing,
+spatial filtering, frequency-domain analysis and edge/keypoint detection: ELA, local histograms, noise, JPEG
+ghosts, DCT double quantisation, edge sharpness and two copy-move matchers. Their evidence is summarised by
+within-image inconsistency statistics and fused by a random forest. On a frozen test set evaluated once, it reaches
+AUC 0.805~[0.779,~0.831] under the strict protocol R, against 0.712 for the shortcut features. The calibrated
+detector judges 52\% of images with 86\% accuracy, and learned map fusion localises tampered regions with pixel
+F1~0.198 (0.308 under B). The detector transfers to the unseen MICC-F220 copy-move dataset (AUC 0.972; 11 forged scenes). An ELA +
+ResNet-18 baseline reaches AUC 0.994 only on the leaking files, where shortcut features alone reach 1.000;
+under R it reaches 0.770, and on MICC-F220 its AUC (0.53) is consistent with chance. The system is released with an interactive interface that explains
+every verdict.
+\end{abstract}
+
+\begin{IEEEkeywords}
+image forensics, forgery detection, copy-move, splicing, error level analysis, dataset bias, CASIA v2.0
+\end{IEEEkeywords}

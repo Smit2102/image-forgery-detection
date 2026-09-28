@@ -1,0 +1,61 @@
+\section{System: Implementation, Tests and Limitations}\label{app:system}
+
+\textbf{Code.} \texttt{src/forgery/pipeline.py} (\texttt{detect()}), \texttt{src/forgery/explain.py} (explanations,
+input preparation and reports; no interface code), \texttt{detect.py} (command line) and \texttt{app/} (Streamlit
+interface, started with \texttt{streamlit run app/Home.py}). The PDF report holds the verdict, overlay, evidence chart
+and caveats on the first page and the eight evidence maps on the second. The command-line tool and both analysis pages
+use the same input preparation. The detector's loader converts every image with PIL's \texttt{convert("RGB")}; this
+is correct for CASIA, where all 12,614 images are 8-bit RGB without EXIF rotation, but it would turn a 16-bit greyscale
+image white. A changed image is saved losslessly as PNG; under B and R the detector works on decoded pixels, so this
+does not affect the analysis. The explorer shows only the 10,722 training and validation images, and since the
+deployed models were refit on all development images, their results on CASIA examples are optimistic.
+
+\textbf{Input preparation.} Every user image is fully decoded, so truncated files fail early; decompression bombs and
+images outside 64--4,000~px per side are refused; the image is rotated by its EXIF orientation, and 16-bit or float
+images are rescaled to 8~bits.
+
+\textbf{Performance.} Table~\ref{tab:sys-perf} gives run times on an Apple M4 laptop. Models are loaded once and
+cached.
+
+\begin{table}[!ht]
+\centering
+\caption{Run time on an Apple M4 laptop (largest allowed image: $4{,}000\times2{,}667$~px).}
+\label{tab:sys-perf}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Step & CASIA-sized & Largest (R / B) \\
+\midrule
+Detection, all eight modules & $\approx$0.2~s & 4.3~s / 7.1~s \\
+SHAP explanation & $\approx$0.5~s & $\approx$0.5~s \\
+PDF report & $\approx$0.3~s & 2.0~s / 3.3~s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interface details.} The analysis page accepts JPEG, PNG, TIFF, BMP and WebP (at most 4,000~px per side) and, for
+CASIA examples, also shows the ground truth. The batch page shows a progress bar, a table of verdicts, probabilities,
+region sizes and the strongest evidence, a gallery of images judged tampered, and CSV and ZIP (overlay) downloads. The
+dataset explorer shows ground-truth masks and metadata (format, estimated JPEG quality, IJG tables, tampered area,
+host and donor id, split group). The results dashboard covers leakage, classification, localisation, the test set,
+robustness and MICC-F220, and the CNN comparison; it shows saved figures made from test images (the missed forgeries
+and false alarms of Section~\ref{sec:test} and the synthetic forgeries of Section~\ref{sec:robustness}), which are
+outputs of the one-time evaluation, not a way to browse the test set. Uploads are stored once per content hash, so a
+rerun (a protocol switch back or a download click) reuses the cached analysis and PDF, also for rotated or 16-bit
+photos, whose prepared copy is written once; batch results are kept in the session until the input or the protocol
+changes; stored uploads are deleted after seven days.
+
+\textbf{Tests.} \texttt{tests/test\_app.py} runs every page headlessly with Streamlit's AppTest framework and checks
+that no page raises an exception; the analysis page produces a verdict for an example image; the batch page processes
+a folder containing a corrupt file and reports exactly that file as an error; a batch in which every file fails still
+renders and hidden files are skipped; batch results survive a rerun; and an empty explorer filter does not blank the
+other tabs. \texttt{tests/test\_explain.py} checks that 16-bit images are rescaled, not clipped; EXIF rotation is
+applied; truncated, non-image, too-small and too-large files are refused; and ordinary files pass through unchanged.
+All pages were also exercised in headless Chrome, including a batch run and the example analysis; the screenshots come
+from that run.
+
+\textbf{Limitations.} (i)~Local use only: nothing is uploaded to a server, but the folder mode reads any folder the user
+names, so the configuration binds the server to \texttt{localhost}. (ii)~An EXIF-rotated photo is analysed upright;
+several modules work on fixed block grids, so the same photo rotated by 90$^\circ$ can receive a different score.
+(iii)~The suspected region is shown for uncertain images too, for inspection, matching the command-line tool, which
+removes the region only for images judged authentic.

@@ -1,0 +1,131 @@
+\section{Leakage-Safe Splits, Protocols and the Shortcut Study}\label{sec:leakage}
+
+\subsection{Leakage-Safe Splits}\label{sec:leakage-splits}
+
+A tampered image shares most of its pixels with its host image. If the host is in the training set and the tampered
+version in the test set, the evaluation is optimistic. We therefore split by \emph{groups}, built with union-find
+over four kinds of link: the host id; exact pixel duplicates (196 merges); verified near duplicates (17 merges from
+694 pairs); and the second-named id, for the 23 images where that image supplies most of the pixels (16 merges).
+The result is 7,262 split groups of at most 69 images (near-duplicate criteria in Appendix~\ref{app:leakage}).
+
+Stratified group $k$-fold assignment (20 bins, seed 42) with strata of forgery type $\times$ file format gives
+train 8,828 / val 1,894 / test 1,892 images (70.0/15.0/15.0\%). The train+val (``dev'') set is further
+divided into five grouped CV folds. No group crosses a split or a fold; this is asserted before the split is
+written and checked again by the test suite. The split is frozen by SHA-256 hashes; it was re-frozen once, before
+any model had seen the test set, after the forgery-type labels were corrected and the donor-dominant links added.
+The test set stays unused until the final evaluation (Section~\ref{sec:test}).
+
+One limitation remains. For 830 tampered images (828 splicing), the donor image is in a different split. The shared
+content is the pasted region: a median of 5.5\% of the image, and 34.5\% at the 90th percentile. We report this
+rather than prevent it: merging every donor would create a single group of 4,027 images (31.9\% of the dataset),
+which makes a stratified 70/15/15 split impossible.
+
+\subsection{Evaluation Protocols}\label{sec:leakage-protocols}
+
+\emph{A (as released):} images exactly as distributed. \emph{C (JPEG-only):} A restricted to JPEG files of both
+classes, an intuitive way to remove the format cue. \emph{B (re-encoded, Q=85):} every image is decoded and re-encoded
+once to JPEG at quality 85 with 4:2:0 chroma subsampling, so all images share one container format and one
+quantisation table. \emph{R (resampled + re-encoded, ``strict''):} every image is downscaled by 0.75 with area
+interpolation, then re-encoded as in B; masks are resized with nearest-neighbour interpolation.
+
+\subsection{Shortcut Study}\label{sec:leakage-shortcuts}
+
+We train a random forest~\cite{breiman2001rf} (300 trees, balanced class weights) on feature families computed
+\emph{globally over the whole image}, none of which localises anything: \emph{file metadata} (format flags,
+quantisation-table statistics); \emph{image dimensions}; \emph{naive global ELA} (statistics of one ELA residual at
+Q=90); and \emph{compression history} (global double-quantisation histograms of low-frequency DCT coefficients and
+a global JPEG-ghost curve). Table~\ref{tab:leakage} and Fig.~\ref{fig:leakage} give balanced accuracy on the five
+grouped dev folds (chance is 0.5); the full feature lists and ROC-AUCs are in Appendix~\ref{app:leakage}.
+
+\begin{table}[t]
+\centering
+\caption{Global shortcut features alone: balanced accuracy (5-fold grouped CV on dev) per protocol}\label{tab:leakage}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Features & A & C & B & R \\
+\midrule
+File metadata & \textbf{0.990} & \textbf{0.991} & 0.508 & 0.503 \\
+Image dimensions & 0.603 & 0.597 & 0.603 & 0.604 \\
+Naive global ELA & 0.696 & 0.678 & 0.564 & 0.539 \\
+Compression history & 0.928 & 0.955 & \textbf{0.789} & 0.608 \\
+All shortcuts & 0.989 & 0.986 & \textbf{0.797} & \textbf{0.649} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_leakage.png}
+\caption{Balanced accuracy (mean and standard deviation over the five grouped dev folds) of a random forest trained
+only on global shortcut features, under protocols A, C, B and R. The dashed line marks chance (0.5).}
+\label{fig:leakage}
+\end{figure*}
+
+\textbf{The benchmark as released can be solved almost perfectly without looking at image content.} File metadata
+alone reaches 99.0\% balanced accuracy (AUC 0.999). \textbf{Restricting to JPEG files does not fix this}: the
+quantisation tables still separate the classes (99.1\%). \textbf{Re-encoding (B) removes the container/metadata
+shortcut (0.508) but not the compression history.} A global double-quantisation and ghost-curve classifier still
+reaches 0.789 under B. Each image carries its earlier compression history: authentic images were last saved as
+JPEGs with standard libjpeg tables (89\% of them), while tampered images were last saved as editing-software JPEGs
+or as uncompressed TIFFs, and one extra re-encode does not erase that history. The effect is strongest when both
+classes started as JPEG: 0.919 on JPEG sources alone, against 0.725 for authentic vs.\ TIFF-tampered.
+\textbf{Resampling before re-encoding (R) erases most of it.} Compression history falls to 0.608, and all shortcuts
+together reach 0.649 $\pm$ 0.011; most of what remains is the image-size shortcut. \textbf{Image size is a residual
+shortcut (0.60) that no protocol removes}, so the forensic pipeline must never use raw image dimensions as
+features. Finally, \textbf{naive global ELA is weak once the container is controlled} (0.56 under B). Even under A
+it reaches only 0.70, and it gains nothing from TIFF files: it scores 0.68 under C, where no TIFFs remain. Its
+signal is compression history, not tampering.
+
+% Module table (Section V) placed here so that the full-width float appears next to Section V.
+\begin{table*}[t]
+\centering
+\caption{The eight forensic modules, the DIP technique family each one uses, and the evidence it computes}\label{tab:modules}
+\scriptsize
+\begin{tabular}{@{}c >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{1.9cm} >{\raggedright\arraybackslash}p{8.6cm} >{\raggedright\arraybackslash}p{2.4cm}@{}}
+\toprule
+\# & Module & DIP category & Evidence & Main parameters \\
+\midrule
+1 & Error Level Analysis & Point processing &
+$|I - \mathrm{JPEG}_q(I)|$ averaged per $8\times8$ block, divided by (block texture $+\,c$) so busy regions are not
+mistaken for tampering & $q$, block, $c$ \\
+2 & Patch-histogram $\chi^2$ & Histogram processing &
+ELA residual contrast-stretched and histogram-equalised; $\chi^2$ distance of each patch histogram to the image's
+reference histogram (the mean over textured patches) & $q$, patch, bins \\
+3 & Noise level & Spatial filtering &
+Immerk{\ae}r high-pass kernel (or a $3\times3$ Laplacian); per-block robust $\sigma = 1.4826\cdot\mathrm{median}|r|$
+over non-edge pixels (gradient $\leq$ a global quantile), since edges leak content into the residual; flat and
+clipped blocks excluded via the common validity mask & kernel, block, edge quantile \\
+4 & JPEG ghosts & Point processing &
+Per-block squared re-compression error at Q = 50 \ldots 95; each block's curve is min-max normalised; evidence =
+L1 distance from the image's median curve & block \\
+5 & DCT double quantisation & Frequency domain &
+Per $8\times8$ DCT frequency: last quantisation step (known or estimated), test of the coefficient histogram for
+periodicity, and per-coefficient posterior of \emph{not} following the periodic pattern; block log-odds averaged
+over frequencies & number of frequencies, period threshold \\
+6 & Edge sharpness & Edge detection &
+Canny edges; at each edge pixel, sharpness = gradient / local contrast ($5\times5$ max $-$ min); block median; both
+over-sharp (hard cut-out) and over-soft (feathered) outliers count & Canny thresholds, block \\
+7 & Copy-move: keypoints & Corner/keypoint detection &
+SIFT (or Harris) keypoints with SIFT descriptors; g2NN matching of the image against itself and against its mirror
+image; pairs $<20$\,px apart dropped; RANSAC affine fit, separately for direct and mirrored matches & detector,
+ratio, contrast \\
+8 & Copy-move: blocks & Frequency domain &
+Overlapping $16\times16$ blocks described by 9 low-frequency DCT coefficients; the blocks of the image and of its
+mirror are sorted lexicographically together; near-identical neighbours are paired and their shift vectors voted on
+& tolerance, min.\ block std, min.\ votes \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Consequences for the Rest of the Project}\label{sec:leakage-consequences}
+
+A forensic feature set shows real tampering evidence only if it clearly beats the shortcuts under the same
+protocol: 0.797 $\pm$ 0.007 balanced accuracy (AUC 0.876) under B and 0.649 (AUC 0.720) under R. These are lower
+bounds; a stronger global probe might score higher. We therefore report classification under both B and R,
+measure the \emph{added value} of the forensic features over the shortcuts, and choose the main protocol with a
+rule fixed before the classification results were seen (Section~\ref{sec:classification}). Pixel-level
+localisation cannot be gamed by global shortcuts, so we treat it as the most trustworthy result, and the features
+favour \emph{within-image inconsistency} over absolute global statistics (Section~\ref{sec:method}). For B we keep
+Q=85, which suppresses the shortcuts about as well as Q=75 while discarding less image detail
+(Appendix~\ref{app:leakage}).

@@ -1,0 +1,152 @@
+\section{Robustness and Generalisation}\label{sec:robustness}
+The deployed models are frozen and nothing here is tuned. These experiments re-use the test split \emph{after}
+the one-time headline evaluation of Section~\ref{sec:test}, for evaluation only, with nothing fed back; each use
+is recorded in the test-run log (two early runs were disclosed in a later note; Appendix~\ref{app:repro}).
+
+\subsection{Robustness to Post-Processing}\label{sec:rob-degrade}
+Every test image (1,892) was degraded \emph{before} the protocol was applied: JPEG re-compression at quality
+95--50; downscaling by $\times$0.9, $\times$0.75 and $\times$0.5, with the ground-truth mask resized alongside;
+Gaussian blur, $\sigma=0.5$--1.5; Gaussian noise, $\sigma=2$--10 grey levels; and a simulated social-media upload
+($\times$0.8 downscale, then JPEG quality 70). Table~\ref{tab:rob-degrade} reports
+the image-level AUC of the deployed forest and the pixel F1 of the deployed localiser (all conditions are plotted
+in Fig.~\ref{fig:robustness}, Appendix~\ref{app:robustness}).
+
+\begin{table}[t]
+\centering
+\caption{Image AUC (pixel F1) of the frozen detector on the degraded test set.}\label{tab:rob-degrade}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Condition & Protocol R & Protocol B \\
+\midrule
+Clean               & 0.805 (0.197) & 0.920 (0.308) \\
+JPEG Q85            & 0.793 (0.193) & 0.903 (0.306) \\
+JPEG Q75            & 0.799 (0.193) & \textbf{0.739} (0.223) \\
+JPEG Q50            & 0.781 (0.191) & 0.719 (0.214) \\
+Resize $\times$0.75 & 0.768 (0.174) & 0.747 (0.170) \\
+Resize $\times$0.5  & \textbf{0.693} (0.126) & 0.698 (0.121) \\
+Blur $\sigma=1.5$   & 0.764 (0.201) & 0.754 (0.203) \\
+Noise $\sigma=10$   & 0.794 (0.197) & 0.803 (0.181) \\
+Social upload       & \textbf{0.762} (0.176) & \textbf{0.721} (0.185) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Protocol R is robust to re-compression and noise: its AUC stays within 0.03 of the clean value down to JPEG
+quality 50 and noise $\sigma=10$, and its localisation F1 hardly changes. R already discards the grid-bound
+compression traces, so its evidence (copy-move keypoints, texture-normalised ELA, edges) does not depend on them.
+Strong downscaling ($\times$0.5) is its main weakness (AUC 0.69, F1 0.13): smaller images leave fewer keypoints
+and blocks.
+
+Protocol B's advantage is fragile. B survives a re-save at quality 95 or 85 (0.900, 0.903; 85 is B's own
+re-encode quality), but at a lower quality its clean AUC (0.920) falls below protocol R's: 0.739 at Q75, 0.772 at
+Q65 (the decline is not monotonic) and 0.719 at Q50. Under blur, noise or downscaling, B's advantage over R largely
+disappears; B stays at most about 0.02 ahead (e.g.\ 0.820 vs 0.802 under noise $\sigma=2$). B's extra signal is
+the within-image compression history (Section~\ref{sec:params}), and any further lossy processing overwrites it.
+A simulated social-media upload costs about 0.04 AUC under R (0.805 $\to$ 0.762) and 0.20 under B
+(0.920 $\to$ 0.721). For images that have been shared online the strict protocol is the realistic setting, which
+supports choosing R as the main protocol, a choice Section~\ref{sec:classification} made on other grounds (its
+pre-registered rule).
+
+\subsection{Synthetic Forgeries with Known Masks}\label{sec:rob-synthetic}
+From the test set's authentic images we generated 480 forgeries with exact masks (tampered regions cover a median
+6\,\% of the image, range 0.2--22\,\%), 120 of each kind: hard-edged splices (a random region cut from another
+authentic image), seamless splices (the same, blended in with Poisson cloning~\cite{perez2003poisson}), plain
+copy-moves (a translated copy of a region) and rotated and scaled copy-moves ($\pm20^\circ$, $\times$0.85--1.15).
+A further 240 untouched authentic images, never used as hosts or donors, serve as negatives. All images were
+saved losslessly and evaluated as made and after a simulated social-media upload. Mask definitions are given in
+Appendix~\ref{app:robustness}.
+
+\begin{table*}[t]
+\centering
+\caption{Synthetic forgeries: AUC against the 240 untouched authentic images [95\,\% CI], share judged
+``tampered'', and pixel F1 (for copy-moves also F1 against source $\cup$ copy, in parentheses). False alarms on the
+untouched images: 1.2\,\% (R), 8.8\,\% (B).}\label{tab:rob-synthetic}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Kind & R: AUC & R: detected & R: F1 (source $\cup$ copy) & B: AUC & B: F1 (source $\cup$ copy) \\
+\midrule
+Splice, hard edge          & 0.569\ci{0.508}{0.629} & 1\,\%  & 0.108 & 0.570 & 0.158 \\
+Splice, seamless           & 0.552\ci{0.487}{0.609} & 2\,\%  & 0.079 & 0.551 & 0.225 \\
+Copy-move, shift           & \textbf{0.885}\ci{0.830}{0.926} & 73\,\% & 0.376 (\textbf{0.597}) & 0.937 & 0.497 (0.703) \\
+Copy-move, rotate + scale  & \textbf{0.896}\ci{0.857}{0.934} & 63\,\% & 0.360 (\textbf{0.571}) & 0.908 & 0.484 (0.653) \\
+After a social upload (all kinds) & 0.693 & 27\,\% & 0.182 & 0.687 & 0.222 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Copy-moves are found, including rotated and scaled ones (Table~\ref{tab:rob-synthetic}: AUC 0.89--0.94, F1
+0.36--0.50): mirror-aware, scale- and rotation-invariant keypoint matching does what it was designed for.
+Fig.~\ref{fig:synthetic} shows that the localiser marks \emph{both} the source and the pasted copy. The ground
+truth marks only the copy, so pixel F1 understates copy-move localisation; scored against source $\cup$ copy, F1
+rises to 0.60/0.57 under R and 0.70/0.65 under B (shift / rotate + scale).
+
+Splices between two CASIA authentic photos are essentially undetectable (AUC 0.55--0.57; the CI for seamless
+splices includes 0.5). This is consistent with the test-set error analysis, where missed forgeries were mostly
+splices (Section~\ref{sec:test}), while CASIA's own splices remain more detectable (AUC 0.68 under R). Here the
+host and donor share the same kind of camera JPEG history, noise level and processing, so there is no compression,
+noise or sharpness inconsistency for the modules to detect; CASIA's own splices are detectable to the extent that
+their pasted content differs in such traces, and more so under B. Seamless blending removes the hard edge, yet even
+the hard-edged splices are rarely flagged: edge sharpness alone is not enough evidence. Social-media processing
+weakens detection (overall AUC 0.725 $\to$ 0.693 under R), with losses spread over the kinds: seamless splices
+$-$0.051 (to chance, 0.501), rotated/scaled copy-moves $-$0.048, shifted copy-moves $-$0.024 and hard-edged
+splices $-$0.005.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_synthetic_examples.png}
+\caption{Synthetic forgeries from test-set authentic images, median-F1 example of each kind under protocol R
+(rows: hard-edged splice, seamless splice, shifted copy-move, rotated and scaled copy-move). Columns: forged image,
+true region, fused probability map, predicted mask. For copy-moves the localiser marks both the source and the
+copy, whereas the ground truth marks only the copy; the splices are missed.}
+\label{fig:synthetic}
+\end{figure}
+
+\subsection{Cross-Dataset Test: MICC-F220}\label{sec:rob-micc}
+MICC-F220~\cite{amerini2011sift} (used for non-commercial research) contains 110 copy-move forgeries and 110
+originals, with larger images than most of CASIA, and is labelled at image level only. The forgeries come from only
+11 scenes, each with 10 attack variants (translation, rotation, scaling and combinations), so the AUC rests on 11
+forged scenes; the other 99 originals have no forged version. In the bootstrap, each scene's original and its
+forgeries form one group.
+
+\begin{table}[t]
+\centering
+\caption{Cross-dataset evaluation on MICC-F220 without retraining (CM: copy-move keypoint matches).}\label{tab:rob-micc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+ & Protocol R & Protocol B \\
+\midrule
+AUC [95\,\% CI]                 & \textbf{0.972\ci{0.933}{0.998}} & 0.902\ci{0.767}{0.984} \\
+Share of images judged          & 48\,\% & 89\,\% \\
+Accuracy on judged          & 0.943 & 0.790 \\
+Forgeries judged tampered   & 86\,\% & 88\,\% \\
+Originals judged tampered   & 5.5\,\% & 28\,\% \\
+Forgeries with CM matches   & 97\,\% & 91\,\% \\
+Originals with CM matches   & 23\,\% & 32\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The CASIA-trained detector transfers to this unseen copy-move dataset without retraining, with AUC 0.97 under R
+(Table~\ref{tab:rob-micc}), driven by the keypoint copy-move module, which finds matches in 97\,\% of the
+forgeries. The false-alarm mechanism of Section~\ref{sec:test} appears here too: 23\,\% of the originals contain
+copy-move keypoint matches, presumably from repeated structure (not inspected). The calibrated model still keeps
+false ``tampered'' verdicts at 5.5\,\% under R, mostly by abstaining: of the 110 originals, 100 fall in the
+uncertain band, 4 are judged authentic and 6 tampered, so the judged accuracy of 0.943 comes almost entirely from
+the forgeries. B generalises worse: its AUC is 0.90, and the paired group-bootstrap difference is
+R $-$ B $=$ +0.069\ci{0.010}{0.172}. Its false-alarm share is 28\,\% against 5.5\,\% for R, although this
+comparison uses each protocol's own uncertain band ($\pm0.04$ vs $\pm0.24$). This is consistent with B's reliance
+on CASIA-specific compression history.
+
+Other external sets, including COVERAGE~\cite{wen2016coverage}, could not be obtained automatically
+(Appendix~\ref{app:robustness}), so a cross-dataset \emph{splicing} test is missing; given
+Section~\ref{sec:rob-synthetic}, we expect splicing to be the weaker case.
+
+In summary, under the strict protocol the detector keeps most of its accuracy under re-compression and noise,
+generalises to an unseen copy-move dataset and is reliable for copy-move forgeries; its clear limit is splicing
+between photographs with the same processing history. Protocol B looks stronger on clean CASIA images, but that
+advantage vanishes after a re-save at JPEG quality 75 or below, and on an external dataset.

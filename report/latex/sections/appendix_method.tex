@@ -1,0 +1,41 @@
+\section{Feature Module Details}\label{app:method}
+
+\textbf{DCT double quantisation.} Under protocols B and R the last compression is known (Q85), so the module uses
+the exact IJG Q85 quantisation table; a blind estimate of the last quantisation step is used only when it is
+unknown (protocol A, or arbitrary input files). Periodicity is tested on the log-histogram of each frequency's
+coefficients after removing a quadratic trend. The residual is projected on every candidate period from 2 to half
+the histogram range, including fractional periods. The largest normalised power is compared with its
+\emph{permutation null}: the same maximum computed after shuffling the residual across bins, 200 times per
+histogram. This gives a calibrated p-value whatever the histogram's width or tails, and however many periods are
+tried. Periodicity is declared at $p\leq\alpha$, with $\alpha$ tuned in Section~\ref{sec:params}. On dedicated test
+cases the false-positive rate at $\alpha = 0.01$ is 0--3\% (0.4\% on real history-free images), against 16--48\%
+for an earlier fixed threshold. Genuinely double-compressed test images are flagged at 75\% of frequencies, but
+overall detection on simulated double compression is only about 56\%: some regular patterns are missed, e.g.\
+$q_1/q_2 = 10/4$ (a period of 2.5 bins) was detected in 0/30 simulations, while 9/4, 7/3 and 8/3 were detected in
+30/30. The per-coefficient posterior compares the observed histogram with a uniform one inside a window spanning a
+whole number of periods.
+
+\textbf{Blind quantisation-step estimator.} The estimator picks the largest step that is a local maximum of the
+integer-fit score and reaches 80\% of what pixel-rounding noise allows ($\sigma = 0.5$, relaxed to 1.0 for
+saturated images). When the first step is an exact multiple of the last (e.g.\ 9 and 3), double compression cannot
+be detected blindly at that frequency.
+
+\textbf{Mirrored copies.} Several CASIA copy-moves are horizontally flipped duplicates, which neither SIFT
+descriptors nor block DCT features match directly. Both detectors therefore also match against the mirrored image.
+For keypoints, descriptors are recomputed at the mirrored keypoint positions. For blocks, the shift measured in
+(image, mirror) coordinates is constant for a mirrored copy, so ordinary shift voting still applies; the mirrored
+image's block grid is offset so that it aligns with the image's block grid.
+
+\textbf{Pair orientation.} A translation has a direction, so direct keypoint pairs are oriented left-to-right
+before RANSAC. Unoriented pairs split one true copy into two opposite transforms, and RANSAC then rejected genuine
+copies. Mirrored pairs are oriented left-to-right as well: a mirrored copy with a vertical offset is a glide
+reflection, whose inverse is a different transform, so the same split would occur. One RANSAC fit is run per
+matching mode (direct and mirrored), so the keypoint detector recovers at most one copied region per mode.
+
+\textbf{Verification.} The synthetic forgeries with a known region are: for ELA and the histogram module, an
+uncompressed region inside a Q60 image; for noise, a noisier region; for JPEG ghosts, a region previously saved at
+Q60 inside a Q90 image, re-saved at Q95; for DCT, a single-compressed region inside a double-compressed image; for
+edges, an unblurred region in a blurred image of the same content; and for copy-move, plain and mirrored copies.
+Contract tests cover tiny ($8\times8$), narrow ($200\times13$), flat and black images, and check determinism. The
+modules are implemented in \texttt{src/forgery/features/} and tested in \texttt{tests/test\_features.py}; the
+synthetic tests run both with the default parameters and with the tuned parameters from \texttt{config.yaml}.

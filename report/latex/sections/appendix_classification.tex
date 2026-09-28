@@ -1,0 +1,88 @@
+\section{Classification: Full Results}\label{app:classification}
+\begingroup\sloppy\urlstyle{tt}
+Full results behind Section~\ref{sec:classification} (script \texttt{scripts/run\_phase5.py}). Table~\ref{tab:app-cls-auc} repeats Table~\ref{tab:cls-auc} with fold standard deviations; all protocols were re-run after the corrections to the feature modules described in Section~\ref{sec:method}. The ablations and the copy-move study (Tables~\ref{tab:app-ablation} and~\ref{tab:app-copymove}) use the most frequently selected hyper-parameters rather than nested selection, so they are mildly optimistic.
+
+\begin{table}[!ht]
+\centering
+\caption{Out-of-fold ROC-AUC, mean $\pm$ std over 5 folds.}
+\label{tab:app-cls-auc}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Features & B: RF & B: SVM & R: RF & R: SVM & A: RF \\
+\midrule
+Shortcuts (Section~\ref{sec:leakage}) & 0.876 $\pm$ 0.003 & 0.876 $\pm$ 0.010 & 0.721 $\pm$ 0.013 & 0.771 $\pm$ 0.010 & \textbf{1.000} \\
+Forensic, local only & 0.902 $\pm$ 0.003 & -- & \textbf{0.781 $\pm$ 0.012} & -- & 0.962 \\
+Forensic, local + global & 0.910 $\pm$ 0.003 & 0.892 $\pm$ 0.004 & \textbf{0.795 $\pm$ 0.008} & 0.793 $\pm$ 0.006 & 0.978 \\
+Forensic + shortcuts & 0.926 $\pm$ 0.004 & 0.922 $\pm$ 0.004 & 0.810 $\pm$ 0.006 & \textbf{0.826 $\pm$ 0.008} & 0.999 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Module ablations (RF, fixed hyper-parameters): ROC-AUC of each module alone, and AUC lost when it is removed from the full forensic set.}
+\label{tab:app-ablation}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Module & Alone, B & Alone, R & Lost if removed, B & Lost if removed, R \\
+\midrule
+ELA & 0.723 & 0.664 & $-$0.000 & \textbf{0.013} \\
+Patch-histogram $\chi^2$ & 0.569 & 0.566 & $-$0.001 & $-$0.001 \\
+Noise level & 0.645 & 0.617 & $-$0.000 & 0.004 \\
+JPEG ghosts & 0.758 & 0.624 & 0.010 & 0.001 \\
+DCT double quantisation & \textbf{0.821} & 0.519 & \textbf{0.046} & 0.001 \\
+Edge sharpness & 0.626 & 0.605 & $-$0.001 & 0.002 \\
+Copy-move keypoints & 0.747 & \textbf{0.720} & \textbf{0.039} & \textbf{0.080} \\
+Copy-move blocks & 0.600 & 0.579 & 0.000 & 0.003 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\caption{Copy-move detectors compared (copy-move vs authentic images; pixel-level figures from Section~\ref{sec:params}).}
+\label{tab:app-copymove}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+ & Image AUC, B & Image AUC, R & Pixel AUC, B & Share localised (pixel AUC $>$ 0.6), B \\
+\midrule
+Keypoints (SIFT + mirror) & 0.865 & 0.821 & 0.719 & 56\% \\
+Blocks (DCT + mirror) & 0.633 & 0.603 & 0.527 & 14\% \\
+Both & 0.878 & 0.839 & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Among the copy-move detectors (Table~\ref{tab:app-copymove}), keypoint matching dominates, but block matching still adds a little (0.865 $\to$ 0.878 under B, 0.821 $\to$ 0.839 under R); presumably it catches some copies in regions where few keypoints are found (not verified). Block matching also votes above threshold on some authentic images (32\% of 25 authentic training images in a check made before the module was corrected), which is one reason it is weak on its own.
+
+\begin{table}[!ht]
+\centering
+\caption{Chosen ``uncertain'' band per protocol (smallest band reaching 85\% accuracy while judging at least half of the images).}
+\label{tab:app-band}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Protocol & Uncertain band & Share judged & Accuracy on judged & Balanced accuracy on judged \\
+\midrule
+R & $P(\text{tampered}) \in 0.5 \pm 0.24$ & 51\% & 0.855 & 0.810 \\
+B & $P(\text{tampered}) \in 0.5 \pm 0.04$ & 96\% & 0.851 & 0.839 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:app-band} lists the uncertain band chosen for each protocol (Section~\ref{sec:classification-calib}). The deployed models are trained on all dev images and stored as \url{models/forgery_{B,R}.joblib} and \url{models/type_{B,R}.joblib}; \texttt{models/MAIN\_PROTOCOL} = R, so \texttt{detect.py} uses protocol R by default. Running \texttt{detect.py} on train or val images therefore gives in-sample outputs that look much better than reality.
+
+\paragraph{Sources of optimism} The nested-CV numbers of Tables~\ref{tab:cls-auc} and~\ref{tab:cls-added} select hyper-parameters inside each training fold. The other analyses are mildly optimistic: the ablations, the copy-move study, calibration, the uncertain band, SHAP and the final models use the hyper-parameters selected most often across the five outer folds, a choice made by looking at all folds; the feature-module parameters were tuned (Section~\ref{sec:params}) on 3,400 dev images (2,400 train + 1,000 val) that also lie inside the CV folds; the band is chosen on the same out-of-fold predictions it is evaluated on; and SHAP is computed in-sample. The deployed model of each protocol is trained on all dev images with that protocol's most frequently selected hyper-parameters, isotonic calibration and its own uncertain band. Only the test-set evaluation (Section~\ref{sec:test}) is free of all of these.
+
+Fig.~\ref{fig:calibration} shows the calibration and accuracy--coverage curves behind Section~\ref{sec:classification-calib}.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_calibration_R.png}
+\caption{Protocol R, out-of-fold. Left: reliability diagram of the raw and isotonic-calibrated random forest. Right: accuracy on judged images versus the share of images judged as the uncertain band widens; the circle marks the chosen band $0.5 \pm 0.24$.}
+\label{fig:calibration}
+\end{figure}
+\par\endgroup

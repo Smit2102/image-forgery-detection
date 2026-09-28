@@ -1,0 +1,66 @@
+\section{Reproducibility and Audit Trail}\label{app:repro}
+
+\textbf{Code and environment.}
+\begin{itemize}\setlength\itemsep{0pt}
+\item \emph{Code:} all code is in one Python package (\texttt{src/forgery}), with one script per pipeline step
+(\texttt{scripts/}).
+\item \emph{Parameters:} every parameter is in \texttt{config.yaml}, and the random seed is fixed at 42.
+\item \emph{Software:} Python 3.12 with NumPy, OpenCV, scikit-image, scikit-learn, SHAP, PyTorch/torchvision (for
+the CNN baseline only) and Streamlit (for the interface); exact versions are pinned in \texttt{requirements.txt}.
+\item \emph{Hardware:} all experiments ran on an Apple M4 laptop with 16\,GB of memory; the CNN was trained on
+its GPU through the MPS backend.
+\item \emph{Tests:} a test suite of 209 unit, data-invariant and interface tests (\texttt{pytest}) covers the
+modules on synthetic forgeries with known regions, the I/O and protocol code, the split invariants, the statistics
+and the interface.
+\end{itemize}
+
+\textbf{Pipeline.} Table~\ref{tab:repro} lists the steps in order. Each step reads the outputs of earlier steps and
+writes its tables and figures to \texttt{results/phase$N$/}; figures are never edited by hand.
+
+\begin{table}[h]
+\centering
+\caption{Pipeline steps and their outputs}\label{tab:repro}
+\scriptsize
+\begin{tabular}{lll}
+\toprule
+Step & Script & Main output \\
+\midrule
+Dataset audit & \texttt{build\_manifest.py} & \texttt{data/manifest.csv}, \texttt{results/phase1/} \\
+Split and leakage study & \texttt{make\_splits.py}, \texttt{run\_leakage\_study.py} & \texttt{data/splits.csv}, \texttt{results/phase2/} \\
+Module sanity check & \texttt{phase3\_sanity.py} & \texttt{results/phase3/} \\
+Parameter sweeps & \texttt{sweep\_params.py -{}-write-config} & \texttt{config.yaml}, \texttt{results/phase4/} \\
+Features and classification & \texttt{extract\_features.py}, \texttt{run\_phase5.py} & \texttt{models/}, \texttt{results/phase5/} \\
+Localisation & \texttt{extract\_maps.py}, \texttt{run\_phase6.py}, \texttt{phase6\_gating.py} & \texttt{models/}, \texttt{results/phase6/} \\
+One-time test evaluation & \texttt{run\_phase7.py}, \texttt{phase7\_posthoc.py} & \texttt{results/phase7/run\_1/} \\
+Robustness, synthetic, MICC-F220 & \texttt{run\_phase7b.py} & \texttt{results/phase7b/} \\
+CNN baseline & \texttt{make\_ela.py}, \texttt{run\_phase8.py}, \texttt{phase8\_posthoc.py} & \texttt{models/cnn\_*.pt}, \texttt{results/phase8/} \\
+Interface & \texttt{streamlit run app/Home.py} & -- \\
+This report & \texttt{build\_report.py} & \texttt{report/*.pdf} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Frozen split.} The split was frozen before any model was trained. Its SHA-256 hashes are stored in
+\texttt{data/test\_split.sha256}:
+\begin{itemize}\setlength\itemsep{0pt}
+\item test split: \texttt{a437cb81\ldots b0b4}
+\item full split: \texttt{6991cc0c\ldots 4468}
+\end{itemize}
+\texttt{make\_splits.py} refuses to change them unless it is explicitly asked to re-freeze.
+
+\textbf{Test-set use.} Every use of the test split is recorded in \texttt{results/phase7/test\_runs.log}:
+\begin{enumerate}\setlength\itemsep{0pt}
+\item \emph{Headline evaluation (run~1), 2026-09-24.} The log holds a start record with fingerprints of all source
+files and inputs, and a completion record with the hashes of the outputs.
+\item \emph{Post-hoc robustness, synthetic and external evaluation (Section~\ref{sec:robustness}), 2026-09-25.} Frozen models,
+evaluation only, nothing fed back. Two earlier runs of these experiments, made before the log entry existed, are disclosed in a
+note record.
+\item \emph{CNN evaluation, 2026-09-27.} New models, evaluated once after a pre-registration that fixed the
+comparisons and the model hashes. The log holds start and completion records.
+\end{enumerate}
+All other analyses of test results read the saved outputs only. Known deviations and their resolutions are listed in
+\texttt{report/KNOWN\_ISSUES.md}.
+
+\textbf{Compute.} The complete pipeline, excluding the CNN, runs in a few hours on the laptop above, most of it
+spent on feature extraction and the parameter sweeps of Section~\ref{sec:params}; the CNN selection and refit took about 3.5\,h of GPU
+time. Analysing a single typical image takes about 0.2\,s.

@@ -1,0 +1,59 @@
+\section{Introduction}\label{sec:intro}
+
+Photographs are routinely edited, and some edits are made to deceive: an object is copied to hide or duplicate
+something (\emph{copy-move}), or a region from another photograph is pasted in (\emph{splicing}). Detecting such
+forgeries, and showing \emph{where} the image was changed, matters for journalism, insurance-fraud review and the
+integrity of scientific images~\cite{piva2013overview,verdoliva2020overview}. Classical image forensics addresses
+this with signal-level cues that editing leaves behind: inconsistent JPEG compression
+histories~\cite{krawetz2007ela,farid2009ghost,lin2009dq}, inconsistent noise~\cite{mahdian2009noise}, unnatural
+edges, and duplicated content~\cite{fridrich2003copymove,amerini2011sift}. These cues are interpretable: each
+produces a map that a human can inspect.
+
+This project set out to build such a detector from the five technique families of a digital image processing
+course (point processing, histogram processing, spatial filtering, frequency-domain filtering, and edge and corner
+detection) and to evaluate it on CASIA~v2.0~\cite{dong2013casia}, a standard benchmark with 12,614 images and
+ground-truth masks. The plan was to classify each image as authentic or tampered, to localise the tampered region,
+and to compare the classical pipeline with a convolutional network trained on ELA images, a popular approach that
+reports accuracies around 90\% on CASIA~v2.0~\cite{sudiatmika2019ela,ali2022recompress}.
+
+Auditing the dataset changed the project. In CASIA~v2.0 as released, most tampered images are uncompressed TIFF
+files, while the authentic images are JPEGs, most of them saved with the standard IJG quantisation tables that no
+tampered JPEG uses (Section~\ref{sec:dataset}). A classifier that sees only the file's metadata separates the two
+classes with 0.990 balanced accuracy (Section~\ref{sec:leakage}). Any method trained on the raw files, including
+ELA, whose output depends directly on the compression history, can therefore score highly without detecting
+tampering. This is a textbook case of data leakage~\cite{kaufman2012leakage} and shortcut
+learning~\cite{geirhos2020shortcut}.
+
+We therefore treat leak control as a first-class part of the evaluation. Every image is processed under an explicit
+protocol: A (the files as released), B (every image re-encoded once as JPEG), or R (every image downscaled, then
+re-encoded; our main protocol). Under each protocol we measure how far \emph{shortcut} features, meaning global
+statistics that could reveal the class without any tampering evidence, can go. Forensic features must beat that
+bar. Everything is designed within-image: each technique compares a region with the rest of the same image, rather
+than comparing images with each other.
+
+\textbf{Contributions.}
+\begin{itemize}\setlength\itemsep{0pt}
+\item A \emph{dataset audit} of CASIA~v2.0: corrected forgery types, re-matched and validated masks, and a
+leakage-safe split that keeps source images, exact duplicates and verified near-duplicates together
+(Sections~\ref{sec:dataset}--\ref{sec:leakage}).
+\item A \emph{shortcut study} that quantifies the format leak and defines protocols that remove most of it
+(Section~\ref{sec:leakage}).
+\item Eight \emph{interpretable forensic modules} spanning all five DIP technique families, summarised by
+within-image inconsistency statistics and tuned on validation data only (Sections~\ref{sec:method}--\ref{sec:params}).
+\item A \emph{rigorous evaluation}:
+  \begin{itemize}\setlength\itemsep{0pt}
+  \item grouped nested cross-validation, added value over the shortcuts with paired bootstrap confidence intervals,
+  and a calibrated detector that abstains when unsure (Section~\ref{sec:classification});
+  \item learned localisation (Section~\ref{sec:localisation});
+  \item a one-time evaluation on a frozen test set (Section~\ref{sec:test});
+  \item robustness to post-processing, synthetic forgeries with exact masks, and a second dataset
+  (Section~\ref{sec:robustness}).
+  \end{itemize}
+\item A pre-registered comparison with an \emph{ELA-CNN baseline} under the same controls, which reaches AUC 0.994 only
+on the leaking files, where shortcut features alone reach 1.000 (Section~\ref{sec:cnn}).
+\item An \emph{interactive system} that explains every verdict with evidence maps and per-image feature
+attributions (Section~\ref{sec:system}).
+\end{itemize}
+
+Section~\ref{sec:related} reviews related work, and Section~\ref{sec:conclusion} discusses limitations and
+concludes. Reproducibility details are in Appendix~\ref{app:repro}.

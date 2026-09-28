@@ -1,0 +1,61 @@
+\section{Parameter Selection}\label{sec:params}
+
+Parameters were tuned on training and validation images only; the test set is untouched. A fixed random sample of
+2,400 training images (1,200 authentic, 1,200 tampered) is used for fitting and 1,000 validation images (500 / 500)
+for scoring. These 3,400 dev images later appear in the cross-validation folds of
+Section~\ref{sec:classification}, so those AUCs are not fully independent of this tuning, a source of mild
+optimism. Each module is tuned on its own by coordinate ascent (one parameter at a time, the others held at their
+current best), always from the same defaults, so a re-run reproduces the same choices. A setting is scored
+by the mean of two numbers: the \emph{image AUC} of a random forest trained on the module's \texttt{local\_*}
+features only, so global shortcuts cannot inflate the score; and the \emph{pixel AUC}, the mean pixel-level ROC-AUC
+of the evidence map against the ground-truth mask over the validation tampered images (copy-move images only for
+the two copy-move modules). A new value is adopted only if it improves the score by more than 0.002. Parameters are
+chosen under protocol B and reused unchanged under R. After corrections to the DCT, noise and both copy-move
+modules, all eight modules were re-tuned from their defaults with the final code. Table~\ref{tab:params} gives the
+resulting scores; the chosen values and the sweep curves are in Appendix~\ref{app:params}
+(Table~\ref{tab:params-chosen}, Fig.~\ref{fig:sweeps}).
+
+\begin{table}[t]
+\centering
+\caption{Validation scores of each module with its chosen parameters (image AUC from \texttt{local\_*} features
+only; share = images with pixel AUC $>0.6$ under B)}\label{tab:params}
+\footnotesize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Image AUC} & \multicolumn{2}{c}{Pixel AUC} & \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Module & B & R & B & R & Share \\
+\midrule
+ELA & 0.696 & 0.638 & 0.615 & 0.625 & 0.52 \\
+Patch hist.\ $\chi^2$ & 0.571 & 0.511 & 0.589 & 0.563 & 0.44 \\
+Noise level & 0.609 & 0.592 & 0.560 & 0.544 & 0.41 \\
+JPEG ghosts & 0.745 & 0.602 & 0.645 & 0.542 & 0.58 \\
+DCT double quant. & 0.797 & 0.491 & 0.668 & 0.543 & 0.65 \\
+Edge sharpness & 0.610 & 0.575 & 0.574 & 0.568 & 0.46 \\
+Copy-move keypoints & 0.744 & 0.728 & 0.719 & 0.683 & 0.56 \\
+Copy-move blocks & 0.618 & 0.561 & 0.527 & 0.517 & 0.14 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{The sweeps mainly improved localisation.} The largest pixel-AUC gains over the defaults were ELA
+(0.551 $\rightarrow$ 0.615), noise (0.491 $\rightarrow$ 0.560) and DCT double quantisation (0.630 $\rightarrow$
+0.668). For ELA, the lower re-save quality ($q=85$) had the largest effect (0.551 $\rightarrow$ 0.613). The gains
+were not uniform: because the criterion is the mean of both scores, a gain in one can offset a small loss in the
+other (e.g.\ for the noise and edge modules).
+
+\textbf{Harris corners, proposed originally, are not a usable copy-move detector on these images.} On CASIA's small
+($384\times256$) images they yield few, poorly repeatable points: image AUC 0.564 and pixel AUC 0.512, against 0.744
+and 0.719 with SIFT's scale-invariant detector. We therefore use SIFT and report Harris as a negative result.
+\textbf{Block matching localises few copy-moves} (pixel AUC $>0.6$ for 14\% of images, against 56\% for
+keypoints), presumably because many CASIA copy-moves involve geometric transformations (not measured) and block DCT
+features are not invariant to rotation or scale.
+
+\textbf{Protocol R removes what the compression modules rely on.} DCT double quantisation falls from 0.797 to 0.491
+image AUC and from 0.668 to 0.543 pixel AUC, and JPEG ghosts from 0.745 to 0.602 image AUC; resampling breaks the
+$8\times8$ JPEG grid, so this is expected. Modules that do not depend on the grid are much less affected: copy-move
+keypoints 0.744 $\rightarrow$ 0.728, ELA 0.696 $\rightarrow$ 0.638, edges 0.610 $\rightarrow$ 0.575. These
+localisation scores come from inconsistency within each image, so global shortcuts cannot produce them. Under B,
+the DCT and ghost modules localise pasted regions (pixel AUC 0.67 and 0.65): the pasted content has a different
+compression history \emph{from the rest of the same image}, which is genuine tampering evidence. The choice between
+B and R as the main protocol is made in Section~\ref{sec:classification}.

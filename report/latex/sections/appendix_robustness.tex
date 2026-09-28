@@ -1,0 +1,36 @@
+\section{Robustness Experiments: Details}\label{app:robustness}
+These details complement Section~\ref{sec:robustness} (script \texttt{scripts/run\_phase7b.py}; outputs in
+\texttt{results/phase7b/}: \texttt{robustness.csv}, \texttt{synthetic.csv}, \texttt{external.csv},
+\texttt{summary.json}, \texttt{micc\_paired\_R\_minus\_B.json}).
+
+\textbf{Degradations.} JPEG re-compression at qualities 95, 85, 75, 65 and 50; downscaling by $\times$0.9,
+$\times$0.75 and $\times$0.5, with the ground-truth mask resized alongside; Gaussian blur with $\sigma=0.5$, 1.0
+and 1.5; Gaussian noise with $\sigma=2$, 5 and 10 grey levels; and a simulated social-media upload ($\times$0.8
+downscale, then JPEG quality 70). Each degradation was applied before the protocol (R or B). Fig.~\ref{fig:robustness}
+plots every condition.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{fig_robustness.png}
+\caption{Robustness of the frozen detector on the test set, degradation applied before the protocol. Top: image
+AUC; bottom: pixel F1; columns: JPEG quality, downscaling, Gaussian blur, Gaussian noise and a simulated
+social-media upload. Protocol R (blue) stays nearly flat except under strong downscaling; protocol B (red) loses
+its advantage after re-compression below Q85 and under blur, noise or downscaling.}
+\label{fig:robustness}
+\end{figure}
+
+
+\textbf{Synthetic mask definitions.} Hard-splice and copy-move masks are exact: no pixel outside the mask changes.
+Poisson blending also alters pixels around the pasted region, so a seamless splice's mask is the pasted region
+plus every pixel the blending changed by more than 2 grey levels. For copy-moves the mask is the pasted copy; we
+also score copy-move localisation against source $\cup$ copy, because the localiser marks both. In 112 of 240
+copy-moves the copy partly overlaps and hides the source (in 34 by more than 20\,\%).
+
+\textbf{Manual forgeries.} Forgeries made by hand in an image editor, and real messaging-app round trips, were not
+available. The synthetic set is a controlled stand-in, and adding real hand-made examples is left as optional
+further work.
+
+\textbf{External datasets not tested.} COVERAGE~\cite{wen2016coverage} (hosted behind an authenticated OneDrive
+link), the Columbia splicing set (server refused access) and CASIA v1.0 (account needed) could not be downloaded
+automatically. Of the MICC datasets, F600, the version with masks, was offline, and F2000 (4\,GB) was skipped. A
+cross-dataset splicing test is therefore missing.

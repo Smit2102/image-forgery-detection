@@ -1,0 +1,50 @@
+\section{Limitations and Conclusion}\label{sec:conclusion}
+
+\textbf{Limitations.}
+\begin{itemize}\setlength\itemsep{0pt}
+\item \emph{Splicing is the main weakness.} Splices whose host and donor share the same processing history leave
+no compression, noise or edge inconsistency; synthetic splices between two CASIA photographs were detected at
+close to chance level (Section~\ref{sec:robustness}). Missed test-set forgeries were mostly splices
+(Section~\ref{sec:test}).
+\item \emph{Self-similar scenes cause false alarms.} Colonnades, lattices and repeated patterns mimic copy-moves.
+All 13 confident false alarms on the test set had copy-move keypoint matches that survived RANSAC.
+\item \emph{Localisation is coarse.} The fusion works on 8$\times$8 cells, and pixel F1 remains modest (0.198
+under R; 0.333 for regions above 5\% of the image). Small regions ($<$1\%) are rarely found.
+\item \emph{Limited external validation.} Only one external dataset, MICC-F220, could be obtained, and it contains
+copy-moves from 11 scenes only. A cross-dataset splicing test is missing.
+\item \emph{Remaining shortcuts.} The protocols remove most, not all, of the leak: under R the shortcut features
+still reach AUC 0.712 on test, mainly through image size. We therefore report added value over the shortcuts, not
+absolute accuracy alone.
+\item \emph{Module limits.}
+  \begin{itemize}\setlength\itemsep{0pt}
+  \item The DCT periodicity test misses some double-quantisation patterns; it detected about 56\% of simulated
+  double compressions.
+  \item The keypoint matcher recovers at most one copied region per matching mode.
+  \end{itemize}
+\item \emph{Baseline scope.} The CNN comparison uses one architecture and one input representation, with less
+tuning than the classical system.
+\end{itemize}
+
+\textbf{Conclusion.} CASIA~v2.0 as released does not measure what it is meant to measure: its labels can be
+predicted from file metadata alone. Once that shortcut is removed and forensic features are required to beat the
+cues that remain, an interpretable pipeline of classical DIP techniques still carries genuine tampering evidence:
+\begin{itemize}\setlength\itemsep{0pt}
+\item \emph{Classification.} Test AUC 0.805 under the strict protocol, +0.103 over the shortcut features.
+\item \emph{Abstention.} The calibrated detector judges about half of the images, with 86\% accuracy.
+\item \emph{Localisation.} It marks tampered regions and explains every decision with evidence maps and feature
+attributions.
+\item \emph{Transfer.} It reaches AUC 0.972 on an unseen copy-move dataset (MICC-F220, 11 forged scenes).
+\end{itemize}
+A standard ELA-CNN, by contrast, reaches its highest score (AUC 0.994) only on the leaking files, where shortcut
+features alone reach 1.000. It trails the classical pipeline under both controlled protocols, and on that dataset
+its AUC is consistent with chance.
+
+The broader lesson concerns evaluation. Before a high score on a forensic benchmark is taken as evidence of
+detection, the benchmark should be checked for shortcuts, and methods should be compared with what those shortcuts
+alone achieve. Promising next steps are:
+\begin{itemize}\setlength\itemsep{0pt}
+\item cues aimed at same-history splices, such as sensor-noise consistency;
+\item suppression of copy-move false alarms on repeated structure;
+\item a cross-dataset splicing benchmark;
+\item learned detectors trained and evaluated under the same leak controls.
+\end{itemize}

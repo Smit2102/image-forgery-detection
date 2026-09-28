@@ -1,0 +1,203 @@
+\section{Test-Set Results and Error Analysis}\label{sec:test}
+
+\subsection{Protocol}\label{sec:test-protocol}
+The test split (1,892 images: 1,123 authentic, 769 tampered; 1,092 split groups, none shared with the
+development set) was frozen when the splits were made (Section~\ref{sec:leakage}). It was used \emph{once} for the
+headline evaluation (run~\#1) and afterwards only for post-hoc evaluations with the same frozen models (the
+robustness and synthetic-forgery experiments of Section~\ref{sec:robustness}) and for the pre-registered, one-time
+comparison with an ELA-CNN baseline (Section~\ref{sec:cnn}; new models, evaluated once). Nothing from these
+experiments was fed back into any model or setting, and each use is recorded in the same run log.
+
+All classifiers, calibrated models and localisers were frozen during development, and the run was guarded by dry
+runs, an independent review, a preflight check and a fingerprinted audit record (Appendix~\ref{app:test}).
+Confidence intervals are 95\,\% group-bootstrap intervals (1,000 resamples of test split groups).
+
+\subsection{Classification}\label{sec:test-classification}
+Table~\ref{tab:test-auc} and Fig.~\ref{fig:roc-test} show that the development estimates hold on unseen data.
+Every test AUC is within 0.02 of its cross-validated development estimate (within 0.015 for all random-forest
+rows), and every dev estimate falls inside the corresponding test CI (R forensic: dev 0.795, test
+0.805\ci{0.779}{0.831}). There is no sign of overfitting to the development set, despite the feature tuning and
+model selection done on it.
+
+The central claim is confirmed on test (Table~\ref{tab:test-added}). Under the strict protocol R, the forensic
+features beat all global shortcuts combined (0.805 vs 0.712). Added on top of them, they raise AUC by
++0.103\ci{0.076}{0.129}; the purely within-image features alone add +0.083\ci{0.048}{0.116}. Under B the gains
+are smaller but still significant (+0.050; local only +0.022\ci{0.003}{0.040}). Protocol A again shows the leak:
+on the released files, shortcuts alone reach test AUC 1.000 and forensic features add nothing. RF and SVM cannot
+be told apart on the forensic features (McNemar, R: 119 vs 115 discordant, $p=0.84$; B: $p=0.88$).
+AUC is the primary metric because the classes are imbalanced (59/41 authentic/tampered) and the operating point
+of the deployed detector is set by calibration and abstention (Section~\ref{sec:test-deployed}); for completeness,
+Table~\ref{tab:test-threshold} gives the threshold metrics of the forensic random forest at probability 0.5.
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Test ROC-AUC [95\,\% CI], with the development estimate (Section~\ref{sec:classification}) for
+comparison.}\label{tab:test-auc}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+Features & R: RF, test & R: RF, dev & R: SVM, test & B: RF, test & B: RF, dev & A: RF, test \\
+\midrule
+Shortcuts                  & 0.712\ci{0.682}{0.746} & 0.721 & 0.753 & 0.886 & 0.876 & \textbf{1.000} \\
+Forensic, local only       & 0.796\ci{0.769}{0.821} & 0.781 & --    & 0.909 & 0.902 & 0.963 \\
+\textbf{Forensic, local + global} & \textbf{0.805\ci{0.779}{0.831}} & 0.795 & 0.809 & \textbf{0.920} & 0.910 & 0.981 \\
+Forensic + shortcuts       & 0.815\ci{0.789}{0.840} & 0.810 & 0.829 & 0.936 & 0.926 & 1.000 \\
+\bottomrule
+\end{tabular}
+
+\vspace{3mm}
+\caption{Test added value over the shortcuts (paired group bootstrap, $\Delta$AUC [95\,\% CI]).}\label{tab:test-added}
+\begin{tabular}{lcccc}
+\toprule
+Contrast & R: RF & R: SVM & B: RF & A: RF \\
+\midrule
+(Forensic + shortcuts) $-$ shortcuts        & \textbf{+0.103\ci{0.076}{0.129}} & +0.077\ci{0.054}{0.099} & +0.050\ci{0.036}{0.063} & +0.000 \\
+Forensic (local + global) $-$ shortcuts     & +0.093\ci{0.059}{0.125} & +0.056\ci{0.026}{0.085} & +0.033\ci{0.017}{0.049} & $-$0.019 \\
+Forensic (local only) $-$ shortcuts         & \textbf{+0.083\ci{0.048}{0.116}} & -- & +0.022\ci{0.003}{0.040} & $-$0.037 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table}[t]
+\centering
+\caption{Test metrics at threshold 0.5 (forensic features, local + global, random forest; tampered is the positive
+class).}\label{tab:test-threshold}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+ & Accuracy & Precision & Recall & F1 & Balanced acc. \\
+\midrule
+R & 0.749 & 0.756 & 0.567 & 0.648 & 0.721\ci{0.695}{0.748} \\
+B & 0.850 & 0.813 & 0.819 & 0.816 & 0.845\ci{0.826}{0.863} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_roc_test_R.png}
+\caption{ROC curves of the forensic random forest under protocol R: development out-of-fold (AUC 0.795) and
+the one-time test evaluation (AUC 0.805). The two curves nearly coincide.}
+\label{fig:roc-test}
+\end{figure}
+
+\subsection{The Deployed Detector}\label{sec:test-deployed}
+The deployed detector (protocol R, calibrated, uncertain band $0.5\pm0.24$) behaves on test as it did in
+development: it judges 51.8\,\% of the images (dev out-of-fold 51\,\%), with accuracy 0.858 (0.855) and balanced
+accuracy 0.809 (0.810) on the judged images, and an expected calibration error of 0.019 (0.009; binned ECE rises
+on smaller samples: test 1,892, dev about 10.7k). Table~\ref{tab:test-deployed} gives its verdicts. A ``tampered''
+verdict is right 94\,\% of the time (222/235); an ``authentic'' verdict is right 83\,\% of the time (619/745),
+because a missed forgery (126) is more common than a false alarm (13). Under B (band $\pm0.04$), 95.7\,\% of
+images are judged, with accuracy 0.869 and balanced accuracy 0.853.
+
+\begin{table}[t]
+\centering
+\caption{Verdicts of the deployed detector on the 1,892 test images (R, band $0.5\pm0.24$).}\label{tab:test-deployed}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+True class & Authentic & Tampered & Uncertain \\
+\midrule
+Authentic (1,123) & 619 & 13  & 491 \\
+Tampered (769)    & 126 & 222 & 421 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Localisation}\label{sec:test-localisation}
+Table~\ref{tab:test-loc} reports the deployed localiser with frozen post-processing on the 766 test tampered
+images with a valid mask. Under R, test localisation matches validation (F1 0.198 vs 0.185); under B it is
+\emph{higher} than validation (0.308 vs 0.260, above the test CI); the cause was not investigated. The learned
+fusion beats both the best single cue and the plain average; paired test differences in F1 are, under R,
++0.023\ci{0.009}{0.037} over keypoints and +0.029\ci{0.013}{0.045} over the average, and under B
++0.096\ci{0.076}{0.114} and +0.101\ci{0.080}{0.120}. Gating the map by the image verdict reduces the share of
+authentic images showing a false region from 89\,\% to 43\,\% (R) and from 73\,\% to 9\,\% (B), at the cost of
+tampered F1 falling from 0.198 to 0.189 (R) and from 0.308 to 0.267 (B).
+
+\begin{table}[t]
+\centering
+\caption{Test localisation (766 tampered images with a valid mask; pixel F1 with 95\,\% CI). Baselines use
+post-processing tuned on validation.}\label{tab:test-loc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+ & R & B \\
+\midrule
+\textbf{Pixel F1} & \textbf{0.198\ci{0.179}{0.216}} & \textbf{0.308\ci{0.284}{0.332}} \\
+IoU        & 0.128 & 0.210 \\
+MCC        & 0.163 & 0.296 \\
+Pixel AUC  & 0.714 & 0.829 \\
+F1, mean of maps                  & 0.169 & 0.208 \\
+F1, copy-move keypoints only      & 0.174 & 0.212 \\
+F1, whole image                   & 0.135 & 0.135 \\
+F1, validation (Sec.~\ref{sec:localisation}) & 0.185 & 0.260 \\
+\midrule
+F1, tampered area $<1$\,\%   & 0.040 & 0.123 \\
+F1, tampered area 1--5\,\%   & 0.148 & 0.295 \\
+F1, tampered area $>5$\,\%   & 0.333 & 0.413 \\
+\midrule
+F1, copy-move & 0.236 & 0.354 \\
+F1, splicing  & 0.129 & 0.226 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Error Analysis}\label{sec:test-errors}
+Under R, missed forgeries (126) were compared with detected ones (222), and false alarms (13) with correct
+authentic verdicts (619); images in the uncertain band are excluded. The comparison uses automatically computed
+image properties, with Fisher's exact test and a Holm correction~\cite{holm1979} over the 14 distinct tests
+(Table~\ref{tab:test-fisher}; examples in Fig.~\ref{fig:failures}).
+
+\begin{table}[t]
+\centering
+\caption{Missed vs detected forgeries (R): share of each property, ratio, Fisher $p$ and Holm-adjusted
+$p$.}\label{tab:test-fisher}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Property & Missed & Det. & Ratio & $p$ & Holm $p$ \\
+\midrule
+Splicing                    & 60\,\% & 3\,\%  & \textbf{22$\times$}  & $<$0.001 & $<$0.001 \\
+Keypoints, lowest tercile   & 49\,\% & 21\,\% & \textbf{2.4$\times$} & $<$0.001 & $<$0.001 \\
+Tampered area $>5$\,\%      & 33\,\% & 57\,\% & 0.57$\times$ & $<$0.001 & $<$0.001 \\
+JPEG source (vs TIFF)       & 44\,\% & 31\,\% & 1.4$\times$  & 0.015 & 0.16 \\
+Low texture                 & 42\,\% & 34\,\% & 1.2$\times$  & 0.17  & n.s. \\
+Flat, saturated, tiny area  & --     & --     & 1.1--1.4$\times$ & $\geq$0.28 & n.s. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The causes of missed forgeries, in order of evidence, are as follows. (i)~\emph{Splicing}: the confident
+``tampered'' verdicts are almost all copy-move images. Splicing leaves no internal duplicate, and after
+resampling its compression and noise traces are weak (splicing vs authentic AUC 0.68 under R, 0.88 under B).
+(ii)~\emph{Few keypoints}: the strongest module, copy-move keypoint matching, has little to work with in smooth,
+low-detail images. (iii)~\emph{Area}: regions above 5\,\% are under-represented among misses (0.57$\times$), but
+tiny regions ($<1$\,\%) are \emph{not} significantly over-represented. JPEG-sourced forgeries look
+over-represented (1.4$\times$, $p=0.015$), but this does not survive the Holm correction; this is the residual
+format effect first noted in Section~\ref{sec:classification}, and on test it even reverses under B, where
+TIFF-sourced forgeries are detected less often (0.77 vs 0.89).
+
+False alarms are only 13, and none of the image-property tags is significant after correction (low-keypoint
+images: 0.33$\times$, $p=0.045$, Holm $p=0.45$). The copy-move features point clearly to the cause: \emph{all 13}
+false alarms have copy-move keypoint matches that survive RANSAC~\cite{fischler1981ransac} (median 13 inliers), \emph{none} of the 619
+correct authentic verdicts has any, and the false alarms also have many keypoints (median 1,500, the detector's
+cap, against 732). Most of the eight false alarms in Fig.~\ref{fig:failures} are \emph{self-similar scenes}
+(colonnades and pillars, repeated statues and ornaments, a lattice tower, a zebra-patterned sofa, rows of gaming
+machines) in which genuinely repeated structure looks like a copy-move, a known weakness of copy-move
+detection~\cite{christlein2012eval,wen2016coverage}. The scene descriptions are qualitative ($n=13$), but the inlier counts are
+measured.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_failures_R.png}
+\caption{Test-set failures under protocol R. Row~1: most confident missed forgeries; row~2: random other missed
+forgeries (red outline: true region); row~3: most confident false alarms; row~4: random other false alarms. Each
+panel gives the forgery type and area class, the calibrated P(tampered) and a texture score. Most false alarms
+are self-similar scenes (pillars, statues, a lattice tower, a zebra-patterned sofa, gaming machines).}
+\label{fig:failures}
+\end{figure*}

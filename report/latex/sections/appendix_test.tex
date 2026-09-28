@@ -1,0 +1,30 @@
+\section{Test-Run Audit Trail}\label{app:test}
+This appendix details the safeguards of the one-time test evaluation summarised in Section~\ref{sec:test}
+(script \texttt{scripts/run\_phase7.py}; post-hoc analysis of the saved outputs in
+\texttt{scripts/phase7\_posthoc.py}; outputs in \texttt{results/phase7/run\_1/}).
+\begin{itemize}\setlength\itemsep{0pt}
+\item \emph{Frozen models.} The classifiers were refit on all development images with the hyper-parameters
+selected most often in the nested cross-validation; the refit of the main forensic random forest is identical to
+the deployed model's forest. The deployed calibrated models were used with their uncertain bands, and the deployed
+localisers with their post-processing. Localisation baselines had their post-processing tuned on the validation
+images only.
+\item \emph{Dry runs.} Before the test run, the full script was exercised twice in a dry-run mode, with the
+training images as ``development'' and the validation images as ``test''. It was then checked in an independent code review.
+\item \emph{Preflight.} At run time a preflight confirmed that every model, feature file and cache matched the
+current code and configuration.
+\item \emph{Start record.} The start record in \texttt{results/phase7/test\_runs.log} holds fingerprints of 36
+files (all project source files and \texttt{config.yaml}) and of 12 input files (the frozen split's hash file,
+the models and the classification and localisation inputs they were built from).
+\item \emph{Completion record.} Because of a path bug, run~1 wrote its completion record, with the hashes of
+\texttt{summary.json} and \texttt{test\_classification.csv}, into \texttt{run\_1/test\_runs.log}. The record was
+copied, unchanged and annotated, into the main log after the run, and the bug was then fixed. The fix changes the
+script's fingerprint for any future run.
+\item \emph{Output manifest.} A SHA-1 manifest of every output file of run~1 (\texttt{run\_1/MANIFEST.sha1}) was
+recorded on the same day.
+\item \emph{Post-run check.} A post-run check recomputed the code and input fingerprints and found nothing
+changed since the run started.
+\end{itemize}
+The later uses of the test split, namely the post-hoc robustness, synthetic and external evaluations with the same
+frozen models (Section~\ref{sec:robustness}) and the pre-registered, one-time comparison with an ELA-CNN baseline
+(Section~\ref{sec:cnn}; new models, evaluated once), fed nothing back and are recorded in the same log
+(Appendix~\ref{app:repro}).

@@ -1,0 +1,108 @@
+\section{ELA-CNN: Training Details and Additional Results}\label{app:cnn}
+
+\textbf{Selection and training.} The network was trained on the train split (8,828 images) with horizontal flips,
+class-weighted binary cross-entropy, AdamW (learning rate $3\cdot10^{-4}$, weight decay $10^{-4}$), batch 64 and a
+cosine schedule over at most 15 epochs; the epoch and pooling rule were selected by AUC on the validation split (1,894
+images). Early stopping ended training after 4 epochs without improvement in validation AUC;
+nothing besides the epoch and the pooling rule was tuned, because a second 5-fold CV, as used for the classical models,
+would have cost about $15\times20$~min of GPU time. Table~\ref{tab:app-cnn-sel} lists the selected recipes and
+Fig.~\ref{fig:app-cnn-training} the validation curves. Training and refitting took about 3.5~hours on an Apple M4 GPU
+(MPS backend), which is not bit-reproducible. A preflight step checked the models, the ELA settings, the classical
+scores and every cached comparison result before the single test run, whose start and completion are recorded in the
+run log. Code: \texttt{scripts/make\_ela.py}, \texttt{scripts/run\_phase8.py}, \texttt{scripts/phase8\_posthoc.py} and
+\texttt{src/forgery/cnn.py}.
+
+\textbf{ELA input.} Fig.~\ref{fig:cnn-ela} shows the network's input for two validation images, as released and after
+protocol R. The authentic JPEG shows almost no ELA error as released, while the tampered TIFF shows strong error along
+edges and texture: the format leak is visible in ELA itself.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_ela_examples.png}
+\caption{ELA inputs of the CNN for two validation images. Top: an authentic JPEG, whose ELA as released (A) is almost
+black. Bottom: a tampered TIFF, whose ELA as released shows strong error along edges and texture. Right: ELA of the
+same images after protocol R.}
+\label{fig:cnn-ela}
+\end{figure}
+
+
+\begin{table}[!ht]
+\centering
+\caption{Selected epoch and pooling rule per protocol (train split; validation split for selection).}
+\label{tab:app-cnn-sel}
+\footnotesize
+\begin{tabular}{lccl}
+\toprule
+Protocol & Selected epoch & Pooling & Validation AUC \\
+\midrule
+R & 3 & max & 0.746 (seeds 42 / 43 / 44: 0.746 / 0.762 / 0.752) \\
+B & 8 & mean & 0.797 \\
+A & 12 & mean & 0.994 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.6\textwidth]{fig_cnn_training.png}
+\caption{Validation AUC (best pooling) per epoch of the ELA-CNN under A, B and R; under R for three seeds.}
+\label{fig:app-cnn-training}
+\end{figure}
+
+\textbf{Image size.} Table~\ref{tab:app-cnn-size} extends the post-hoc size grouping of Section~\ref{sec:cnn-groups}.
+The train-only selection models show the same drop on validation: R 0.728 on standard-size vs.\ 0.567 on larger
+images; B 0.792 vs.\ 0.664. Under B, larger authentic images also receive higher scores than standard-size authentic
+ones (mean logit 0.17 vs.\ $-$1.76). Within the larger images, the score correlates only weakly with the number of
+tiles (Spearman 0.20 under R, max pooling; $-$0.09 under B, mean pooling). Against the forest on forensic + shortcut
+features, the CNN differs by $-$0.045\ci{$-$0.074}{$-$0.017} (R), $-$0.125\ci{$-$0.145}{$-$0.104} (B) and
+$-$0.005\ci{$-$0.009}{$-$0.003} (A). Under B, CNN $-$ classical is $-$0.129\ci{$-$0.152}{$-$0.106} on copy-move and
+$-$0.071\ci{$-$0.101}{$-$0.042} on splicing.
+
+\begin{table}[!ht]
+\centering
+\caption{Test AUC by natural image size (post-hoc; the pre-registered area terciles are invalid).}
+\label{tab:app-cnn-size}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+Size (test images) & $n$ & Tampered & R: CNN & R: classical & R: CNN $-$ classical & B: CNN $-$ classical \\
+\midrule
+Smaller than $384\times256$ & 21 & 62\% & 0.702 & 0.615 & +0.087\ci{$-$0.072}{0.260} & $-$0.144 \\
+$384\times256$, either orientation & 1,469 & 34\% & 0.770 & 0.789 & $-$0.019\ci{$-$0.065}{0.026} & $-$0.105\ci{$-$0.133}{$-$0.080} \\
+Larger than $384\times256$ & 402 & 65\% & 0.544 & 0.730 & $-$0.186\ci{$-$0.232}{$-$0.139} & $-$0.217\ci{$-$0.266}{$-$0.163} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Robustness.} Table~\ref{tab:app-cnn-robust} gives the test AUC after each degradation of
+Section~\ref{sec:robustness}; each was followed by the protocol and then ELA (classical results are the frozen outputs
+of that section). Under R, the CNN loses about as much as the classical pipeline: JPEG Q75 costs 0.008 vs.\ 0.006,
+resize $\times$0.5 0.085 vs.\ 0.112, and the social upload 0.037 vs.\ 0.044; after resizing, the gap between the two
+is not significant ($-$0.008\ci{$-$0.043}{0.027}). Under B, the classical pipeline loses much more, because its B
+advantage rests on compression traces that any re-save overwrites: JPEG Q75 costs it 0.180 against 0.065 for the CNN,
+leaving the two level (+0.007\ci{$-$0.034}{0.047}), and the social upload 0.199 against 0.137. Padding is not the cause of
+the CNN's losses: after downscaling most images become smaller than one tile (95\% under R resize $\times$0.5; 82\%
+after a social upload), and scoring them without padding changes the AUC by at most 0.018. On MICC-F220 the CNN reaches
+0.529\ci{0.360}{0.700} (R) and 0.454\ci{0.226}{0.660} (B), consistent with chance, while the classical detector
+reaches 0.972 (R) and 0.902 (B); the CIs are wide because the forgeries come from only 11 scenes. The failure fits the
+size analysis: all MICC-F220 photographs are larger than CASIA's standard size ($722\times480$ to $800\times1{,}070$)
+and come from a different dataset, whereas the classical copy-move matching finds the duplicated regions regardless of
+their source.
+
+\begin{table}[!ht]
+\centering
+\caption{Test AUC of the ELA-CNN and the classical pipeline under degradations and on MICC-F220.}
+\label{tab:app-cnn-robust}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Condition & R: CNN & R: classical & R: rank average & B: CNN & B: classical \\
+\midrule
+clean & 0.770 & 0.805 & 0.824 & 0.811 & 0.920 \\
+JPEG Q75 & 0.762 & 0.799 & 0.817 & 0.746 & 0.739 \\
+resize $\times$0.5 & 0.685 & 0.693 & 0.720 & 0.672 & 0.698 \\
+social upload & 0.733 & 0.762 & 0.788 & 0.674 & 0.721 \\
+MICC-F220 & 0.529\ci{0.360}{0.700} & 0.972 & 0.811 & 0.454\ci{0.226}{0.660} & 0.902 \\
+\bottomrule
+\end{tabular}
+\end{table}

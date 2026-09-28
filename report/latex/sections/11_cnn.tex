@@ -1,0 +1,132 @@
+\section{Comparison With a Deep-Learning Baseline}\label{sec:cnn}
+
+A common approach in the CASIA~v2.0 literature feeds error-level-analysis (ELA) images to a convolutional network and
+reports accuracies around 90\%~\cite{sudiatmika2019ela,ali2022recompress}. We built such a baseline, with the same
+splits, protocols and frozen test set, to see whether a learned model beats the hand-crafted pipeline once the format
+leak is controlled, and whether those high numbers survive that control.
+
+\subsection{Method}\label{sec:cnn-method}
+
+ELA is computed on the image \emph{after} the protocol: the absolute per-channel difference to its JPEG re-save at
+quality~90, scaled by 10, clipped to 8~bits and kept at native resolution (examples in Appendix~\ref{app:cnn}). A
+ResNet-18~\cite{he2016resnet} with ImageNet weights~\cite{deng2009imagenet} and a single logit is trained on one random
+$192\times192$ crop per image per epoch with class-weighted binary cross-entropy and AdamW (details in
+Appendix~\ref{app:cnn}); images smaller than a tile are zero-padded, which in ELA space means ``no error''. The image
+score pools the logits of overlapping $192\times192$ tiles (stride 96) by their mean or maximum. Only the epoch and the
+pooling rule were chosen, by validation AUC; the recipe was then refit on all 10,722 development images, as was the
+classical forest. Under R, three seeds differ little on validation (SD 0.008), so one run is representative. Before
+the network saw the test split, the comparisons were pre-registered with the SHA-1 of every model; primary were the R
+test AUC, the paired difference CNN $-$ classical under R and B, and a fixed rank-average combination of the two
+scores. The evaluation ran once. The comparator is the forest on the forensic features (local + global) of
+Section~\ref{sec:test}.
+
+\begin{table*}[!t]
+\centering
+\caption{ELA-CNN vs.\ the classical pipeline: test ROC-AUC [95\% CI] and paired differences (group bootstrap,
+1,000 resamples). Classical = random forest on the forensic features.}
+\label{tab:cnn-test}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+ & R & B & A \\
+\midrule
+ELA-CNN & 0.770\ci{0.744}{0.795} & 0.811\ci{0.788}{0.834} & \textbf{0.994}\ci{0.991}{0.997} \\
+Classical & \textbf{0.805}\ci{0.779}{0.831} & \textbf{0.920}\ci{0.905}{0.934} & 0.981\ci{0.975}{0.986} \\
+Rank average (CNN, classical) & \textbf{0.824}\ci{0.803}{0.846} & 0.903\ci{0.886}{0.919} & 0.996\ci{0.994}{0.998} \\
+\midrule
+CNN $-$ classical & $-$0.036\ci{$-$0.067}{$-$0.005} & $-$0.109\ci{$-$0.128}{$-$0.088} & +0.014\ci{0.008}{0.019} \\
+CNN $-$ shortcut features (RF) & +0.058\ci{0.030}{0.084} & $-$0.075\ci{$-$0.094}{$-$0.055} & $-$0.005\ci{$-$0.008}{$-$0.003} \\
+CNN $-$ shortcut features (SVM) & +0.017\ci{$-$0.011}{0.044} & $-$0.072\ci{$-$0.091}{$-$0.053} & -- \\
+Rank average $-$ classical & +0.019\ci{0.003}{0.035} & $-$0.017\ci{$-$0.025}{$-$0.008} & +0.015\ci{0.011}{0.019} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{fig_cnn_roc.png}
+\caption{Test ROC curves of the ELA-CNN, the classical forest, their rank average and the shortcut features under
+protocols R, B and A (AUC in the legends). Only on the files as released (A) does the CNN reach a very high AUC (0.994),
+and there the shortcut features alone reach 1.000.}
+\label{fig:cnn-roc}
+\end{figure*}
+
+\subsection{Test results}\label{sec:cnn-test}
+
+Table~\ref{tab:cnn-test} and Fig.~\ref{fig:cnn-roc} give the results. With a Holm correction~\cite{holm1979} over the
+four primary paired comparisons (CNN $-$ classical and rank average $-$ classical, under R and B), both R results stay
+significant (adjusted $p=0.036$ each; unadjusted 0.026 and 0.018, bootstrap $p$-values); the B results have $p<0.002$.
+The two R differences are significant on this test set but small, and not adjusted for variation between training
+runs, which the test CIs do not include.
+
+\emph{Under the strict protocols the classical pipeline wins.} Under R the CNN is 0.036 below the forensic forest. It
+beats the shortcut features' random forest (+0.058) but is not significantly better than their SVM (0.753). Since the
+CNN can also see global cues such as the overall ELA level and, through max pooling, image size, we cannot show that
+it learns more than the global shortcuts do~\cite{geirhos2020shortcut}. Under B the gap widens to 0.109 and the CNN
+falls below B's global shortcuts (0.811 vs.\ 0.886): B keeps within-image compression traces that the DCT, ghost
+and ELA modules measure explicitly, and the CNN exploits them less well.
+
+\emph{On the files as released (A)} the CNN reaches AUC 0.994 (the literature reports ${\sim}$90\% accuracy on these
+files), while the shortcut features alone reach 1.000 on the same files: the leak alone gives such
+a score. It is visible in ELA itself (Fig.~\ref{fig:cnn-ela}, Appendix~\ref{app:cnn}) and persists on JPEG files only
+(0.995). A plausible explanation, not tested directly: authentic JPEGs mostly use the standard IJG
+tables (89\%), tampered ones never do (Section~\ref{sec:dataset}), and ELA is sensitive to the table. This is
+incomplete, since the CNN also separates tampered JPEGs from the 126 authentic JPEGs with non-standard tables (AUC
+0.971).
+
+\emph{Under R the two approaches are complementary.} Their scores are moderately correlated (Spearman 0.57), and their
+rank average reaches 0.824, the highest R AUC among detectors without shortcut features, level with the best model of
+Section~\ref{sec:test}, the SVM on forensic + shortcut features (0.829; difference $-$0.005\ci{$-$0.024}{0.014}). Under
+B, averaging in the weaker CNN hurts. The combination ranks scores within the evaluation set and cannot score a single
+image, so the deployed detector remains the classical one.
+
+\begin{table}[!t]
+\centering
+\caption{Test AUC under R by forgery type (authentic vs.\ one type) and by natural image size (post-hoc).}
+\label{tab:cnn-groups}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+ & CNN & Classical & CNN $-$ classical \\
+\midrule
+Copy-move & 0.778 & 0.874 & $-$0.096\ci{$-$0.125}{$-$0.069} \\
+Splicing & 0.755 & 0.682 & +0.073\ci{0.019}{0.128} \\
+\midrule
+Smaller than $384\times256$ ($n$=21) & 0.702 & 0.615 & +0.087\ci{$-$0.072}{0.260} \\
+$384\times256$ ($n$=1,469) & 0.770 & 0.789 & $-$0.019\ci{$-$0.065}{0.026} \\
+Larger than $384\times256$ ($n$=402) & \textbf{0.544} & 0.730 & $-$0.186\ci{$-$0.232}{$-$0.139} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Where each approach wins}\label{sec:cnn-groups}
+
+Table~\ref{tab:cnn-groups} splits the R results. Keypoint matching is much better at copy-move than the CNN, which is
+not built to compare distant regions. On splicing, the classical pipeline's main weakness (Section~\ref{sec:test}), the
+CNN wins (+0.073), but the global shortcut features reach almost the same AUC (SVM 0.743; forensic + shortcut SVM
+0.752), so this edge may come from global compression or size differences between CASIA's spliced and authentic
+images rather than from local splice traces. It is still what makes the rank average help.
+
+The pre-registered size check (AUCs within area terciles) is \emph{invalid}: 78\% of the test images are
+$384\times256$ in either orientation, and the code broke this tie by row order, which lists authentic images first, so
+the terciles were confounded with the label. A post-hoc grouping by natural size replaces it. On standard-size images
+the CNN is not significantly different from the forest, though the wide CI does not show equivalence; most of its
+deficit comes from larger images, where it is near chance (0.544); the forest, some of whose features also depend on
+size, drops less. Larger authentic images receive much higher CNN scores than standard-size ones (mean logit 1.35
+vs.\ $-$0.40): the network appears to have learned the ELA statistics of the dominant $384\times256$ images and to
+treat others as suspicious (an interpretation; the image sources were not analysed).
+
+\emph{Transfer.} The CNN does not transfer to MICC-F220: AUC 0.529\ci{0.360}{0.700} under R, consistent with chance,
+against 0.972 for the classical detector (11 forged scenes, hence the wide CI). Degradation results are in
+Appendix~\ref{app:cnn}.
+
+\subsection{Summary and limitations}\label{sec:cnn-summary}
+
+A standard ELA-CNN reaches high scores only on the leaking files. Under R and B it is below the
+classical pipeline and not significantly better than a shortcut-feature SVM, but under R its rank average with the
+forest matches the best model. Its failure on MICC-F220 is the strongest argument in this study for explicitly modelled
+classical cues. Limitations: one architecture and input representation, no search beyond epoch and pooling, a single
+validation split, and non-bit-reproducible GPU training. A stronger network, e.g.\ trained end-to-end on RGB with
+constrained convolutions~\cite{bayar2016constrained}, might close the gap under R, but would need the same leak
+controls.

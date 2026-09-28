@@ -1,0 +1,42 @@
+\section{System and Demonstration}\label{sec:system}
+
+\textbf{Single entry point.} The command line, the batch mode and the interface all call one function,
+\texttt{detect()}. It loads the image, applies the protocol, runs the eight modules with the tuned parameters
+(Section~\ref{sec:params}), classifies with the calibrated forest, estimates the forgery type, localises with the
+learned fusion and gates the mask by the verdict. It refuses a model whose recorded feature parameters or protocol
+differ from the current configuration, so no entry point can drift from the evaluated system.
+
+\textbf{Explanations.} Each result carries the exact SHAP contributions (TreeExplainer)~\cite{lundberg2017shap,
+lundberg2020tree} of the 82 features to the forest's score, translated into plain language; a unit test checks that
+they plus the base value reproduce the forest's probability exactly. The calibrated probability is a monotone
+transformation of that score, so the directions carry over but the sizes are not on the probability scale. The verdict
+text states the uncertain band (P(tampered) within $0.50\pm0.24$ under R gives no verdict) and the share of test
+images in it (48\% under R, 4\% under B); evidence sentences name the strongest evidence and the known false-alarm
+cause, repeated real structure mimicking a copy-move (Section~\ref{sec:test}). A PDF report and a JSON record can be
+exported.
+
+\textbf{Input preparation.} Every image is validated and normalised before analysis (Appendix~\ref{app:system}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth, trim=375 1235 75 340, clip]{fig_ui_analyze.png}
+\caption{Result panel of the ``Analyze an image'' page for a MICC-F220 copy-move example under protocol R: verdict
+with P(tampered), likely type and size of the suspected region, next to the analysed image, the suspected region (red)
+and the fused tampering probability map. Evidence sentences and the per-image SHAP chart follow below it on the page (not shown).}
+\label{fig:ui-analyze}
+\end{figure}
+
+\textbf{Interface.} A four-page Streamlit application offers (1)~\emph{Analyze an image} (Fig.~\ref{fig:ui-analyze}):
+verdict, likely type, suspected region, fused map, explanation, per-technique evidence maps and downloads, with the
+protocol chosen in the sidebar (R by default); (2)~\emph{batch analysis} of up to 200 files or a folder, where an
+unreadable file does not stop the batch; (3)~a \emph{dataset explorer} whose leak tab shows format and quantisation
+tables by class and the shortcut classifiers' balanced accuracy per protocol; (4)~a \emph{results dashboard} that
+reads the saved evaluation without recomputing it.
+
+\textbf{Keeping the evaluation honest.} The explorer never lists the test split. CASIA examples are labelled as
+training data, since the deployed models were refit on them; MICC-F220 images serve as unseen examples. The home page
+states the limits: trained on CASIA, a verdict is evidence, not proof, about half of all images fall in the uncertain
+band, and the known weaknesses.
+
+\textbf{Performance and verification.} A CASIA-sized image is analysed in about 0.2~s, and every page is covered by
+automated headless tests (Appendix~\ref{app:system}).

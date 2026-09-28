@@ -1,0 +1,44 @@
+\section{Related Work}\label{sec:related}
+
+\textbf{Compression-based cues.} Error level analysis re-saves an image as JPEG and inspects the per-pixel
+difference; regions with a different compression history respond differently~\cite{krawetz2007ela}. JPEG ghosts
+generalise this idea by re-saving at many qualities and looking for regions whose error is minimal at a different
+quality from the rest of the image~\cite{farid2009ghost}. Double-quantisation analysis detects the periodic
+pattern that a second JPEG compression leaves in the histograms of DCT coefficients; regions pasted in after the
+first compression lack it~\cite{popescu2004stats,lin2009dq,bianchi2012dq}. All three cues measure compression
+history. This is why they are powerful, and also why they are exposed to a dataset in which the two classes differ
+in compression history for reasons unrelated to tampering.
+
+\textbf{Noise and edges.} A region taken from another photograph often carries a different noise level. Noise
+inconsistencies can be measured with local noise estimators~\cite{mahdian2009noise}; we use Immerk{\ae}r's fast
+estimator~\cite{immerkaer1996noise}. Boundaries of pasted objects can be unnaturally sharp or feathered, which
+edge detectors such as Canny's~\cite{canny1986} make measurable.
+
+\textbf{Copy-move detection.} Block-based methods describe overlapping blocks, for example by their DCT
+coefficients, sort them and look for many similar pairs sharing one shift~\cite{fridrich2003copymove}.
+Keypoint-based methods match SIFT features~\cite{lowe2004sift} of an image against itself and verify the matches
+geometrically with RANSAC~\cite{fischler1981ransac}, which makes them robust to rotation and
+scaling~\cite{amerini2011sift}. Christlein et al.\ compared both families systematically~\cite{christlein2012eval}.
+We implement one method of each family and add matching against the mirrored image, because some CASIA copies are
+flipped.
+
+\textbf{Learned detectors.} CNNs have been trained directly for splicing and copy-move
+detection~\cite{rao2016cnn}. Constrained first layers suppress image content and expose manipulation
+traces~\cite{bayar2016constrained}. Two-stream detectors combine RGB with noise residuals~\cite{zhou2018rgbn}, and
+ManTra-Net treats localisation as local anomaly detection on learned manipulation-trace
+features~\cite{wu2019mantra}. A simpler, widely used
+recipe feeds ELA or recompression-difference images to a CNN, with reported accuracies around 90\% on
+CASIA~v2.0~\cite{sudiatmika2019ela,ali2022recompress}. These models are trained and tested on the dataset's files
+as released. Section~\ref{sec:cnn} shows that under that condition a network of this kind can reach a very high
+score without detecting tampering.
+
+\textbf{Datasets and evaluation pitfalls.} CASIA~v2.0~\cite{dong2013casia} is among the most used benchmarks.
+Revised ground-truth masks for it have been published~\cite{pham2019casia}, which indicates known problems with
+its annotations. Other benchmarks include COVERAGE, whose authentic images contain similar-but-genuine objects to
+provoke false copy-move alarms~\cite{wen2016coverage}, and MICC-F220 for copy-move~\cite{amerini2011sift}. More
+generally, a model can succeed by exploiting a shortcut that correlates with the label in the benchmark but not in
+deployment~\cite{geirhos2020shortcut}. Information about the target that reaches the features through the data
+collection process is a form of leakage~\cite{kaufman2012leakage}. Model selection on the evaluation data inflates
+results unless it is nested~\cite{cawley2010nested}. Our evaluation is built around these three risks: format
+shortcuts are controlled by protocols, near-duplicates are grouped in the split, and all selection is nested or
+done on validation data, with a single evaluation of the frozen test set.

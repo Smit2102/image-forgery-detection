@@ -1,0 +1,88 @@
+\section{Image-Level Classification}\label{sec:classification}
+
+\subsection{Set-up}\label{sec:classification-setup}
+All 10,722 development images (train + val) are used with the five grouped folds of Section~\ref{sec:leakage}; the test set is untouched (Section~\ref{sec:test}). Two classifiers are compared: an RBF SVM \cite{cortes1995svm} on standardised features ($C \in \{1, 10, 100\}$, $\gamma \in \{0.3, 1, 3\}/d$) and a random forest (RF) \cite{breiman2001rf} with 300 trees and balanced class weights (max features $\in \{\sqrt{d}, 0.3d\}$, min leaf $\in \{1, 4\}$), both from scikit-learn \cite{pedregosa2011sklearn}. Hyper-parameters are selected inside each training fold by grouped 3-fold CV maximising ROC-AUC, i.e.\ nested CV \cite{cawley2010nested}. We report mean $\pm$ std over the five folds and the pooled out-of-fold AUC with a 95\% CI from 1,000 group-bootstrap resamples \cite{efron1993bootstrap}, in which split groups are resampled whole. Four feature sets are fused: \emph{forensic, local only} (the 70 within-image inconsistency features), \emph{forensic, local + global} (82 features), \emph{shortcuts} (the 49 global features of Section~\ref{sec:leakage}) and \emph{forensic + shortcuts}.
+
+A main-protocol rule was fixed before the results were seen: the main protocol is R if, under R, adding the forensic features to the shortcuts raises AUC with a 95\% CI excluding 0; otherwise B under the same test; otherwise none. The outcome is R.
+
+\begin{table}[!t]
+\centering
+\caption{Out-of-fold ROC-AUC (mean over 5 folds; standard deviations in Appendix~\ref{app:classification}). Protocol A exists only to show the leak.}
+\label{tab:cls-auc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Features & B: RF & B: SVM & R: RF & R: SVM & A: RF \\
+\midrule
+Shortcuts & 0.876 & 0.876 & 0.721 & 0.771 & \textbf{1.000} \\
+Forensic, local & 0.902 & -- & \textbf{0.781} & -- & 0.962 \\
+Forensic, loc.+glob. & 0.910 & 0.892 & \textbf{0.795} & 0.793 & 0.978 \\
+Forensic + shortcuts & 0.926 & 0.922 & 0.810 & \textbf{0.826} & 0.999 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\caption{Added value over the shortcuts: paired group-bootstrap $\Delta$AUC [95\% CI].}
+\label{tab:cls-added}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+ & (Forensic + shortcuts) & Forensic (local only) \\
+ & $-$ shortcuts & $-$ shortcuts \\
+\midrule
+B: RF & +0.050\ci{0.044}{0.055} & +0.026\ci{0.018}{0.033} \\
+R: RF & \textbf{+0.088}\ci{0.078}{0.097} & \textbf{+0.059}\ci{0.047}{0.072} \\
+R: SVM & +0.054\ci{0.045}{0.063} & -- \\
+A: RF & $-$0.000 & $-$0.037 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Results}\label{sec:classification-results}
+Table~\ref{tab:cls-auc} gives the out-of-fold AUCs and Table~\ref{tab:cls-added} the added value over the shortcuts. Under R, the forensic RF (local + global) reaches AUC 0.795\ci{0.783}{0.806}, and, at threshold 0.5 on the uncalibrated forest, balanced accuracy 0.705~$\pm$~0.011 and image-level F1 0.628~$\pm$~0.018 (not the pixel F1 of Section~\ref{sec:localisation}). Three findings stand out. First, \emph{the forensic features carry real tampering evidence}: under both honest protocols they beat every shortcut combined and add significantly on top of them. The purest test is the local-only set, which compares regions within one image; it beats the shortcuts by +0.059 AUC under R and +0.026 under B, both with CIs well above zero. Second, \emph{on the dataset as released (A) the numbers are meaningless}: shortcuts alone score AUC 1.000 and adding the forensic features changes nothing ($\Delta$AUC $-$0.000). An A-protocol forensic AUC of 0.978 would look state-of-the-art, but most of it is compression history. Third, \emph{RF and SVM are statistically indistinguishable} on the forensic features under R (McNemar test \cite{mcnemar1947}: 603 vs 644 discordant decisions, $p = 0.26$); the SVM combines forensic and shortcut features somewhat better (0.826 vs 0.810).
+
+\emph{Ablations} (RF, fixed hyper-parameters; Appendix~\ref{app:classification}). Under B the compression modules lead when used alone (DCT 0.821, ghosts 0.758); resampling (R) removes their signal, as Section~\ref{sec:params} predicted. Copy-move keypoint matching is the most robust module (0.747 $\to$ 0.720 from B to R) and the most important one under R: removing it costs 0.080 AUC (under B, 0.039, just behind DCT at 0.046). Under R, ELA is the second pillar (0.013). Removing the noise, histogram or block-matching module changes AUC by 0.004 or less; their information is redundant with ELA and the keypoint detector, and they are kept for completeness and localisation.
+
+\begin{table}[!t]
+\centering
+\caption{Where the detector succeeds and fails (R, RF, out-of-fold). Detection rate at threshold 0.5.}
+\label{tab:cls-breakdown}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Subset & Detection rate & AUC \\
+\midrule
+Copy-move vs authentic & -- & 0.851 \\
+Splicing vs authentic & -- & 0.694 \\
+Tampered area $<$ 1\% & 0.525 & 0.768 \\
+Tampered area 1--5\% & 0.530 & 0.787 \\
+Tampered area $>$ 5\% & 0.596 & 0.818 \\
+Tampered, released as TIFF & 0.606 & -- \\
+Tampered, released as JPEG & 0.477 & -- \\
+\midrule
+Authentic (false-positive rate) & 14.4\% & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Per forgery type and error breakdown} (Table~\ref{tab:cls-breakdown}). Copy-move is detected far better than splicing (AUC 0.851 vs 0.694): copy-move leaves an explicit duplicate, whereas splicing must be found through subtler statistical differences. Larger regions are easier, as expected; the 16 tampered images without a valid mask are in no area bucket. Tampered images released as TIFF are detected more often than JPEG ones even under R, so some format-related difference may survive resampling; this residual bias is re-checked on the test set (Section~\ref{sec:test}). A second forest, trained on tampered images only, predicts copy-move vs splicing with out-of-fold AUC 0.830 (R) / 0.874 (B) and supplies the ``likely type'' output.
+
+\subsection{Calibration and the ``Uncertain'' Verdict}\label{sec:classification-calib}
+The raw forest is already fairly well calibrated under R: its expected calibration error (ECE, the sample-weighted mean gap between predicted and observed tampered share over 10 equal-width probability bins) is 0.034, and isotonic calibration \cite{zadrozny2002calib}, fitted inside each fold, brings it to 0.009 (Brier 0.176 $\to$ 0.175; Fig.~\ref{fig:calibration} in Appendix~\ref{app:classification}). Accuracy on the images the system is willing to judge rises steadily as the uncertain band widens: 0.731 when judging every image, 0.855 at 51\% coverage and 0.959 at 12\% coverage. The band is the smallest that reaches 85\% accuracy while still judging at least half of the images. Under R this gives $P(\text{tampered}) \in 0.5 \pm 0.24$, judging 51\% of images with accuracy 0.855 (balanced accuracy 0.810); under B, $0.5 \pm 0.04$, judging 96\% with accuracy 0.851 (balanced 0.839). The 85\% target is plain accuracy on an imbalanced dev set (59\% authentic), hence the balanced accuracies. Under the strict protocol R the tool honestly declines to judge about 49\% of CASIA images; this is the cost of refusing the shortcuts.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_shap_R.png}
+\caption{SHAP explanation of the protocol-R random forest on the forensic features. Left: the 20 features with the largest mean $|$SHAP$|$ (dominated by copy-move keypoint and ELA features). Right: mean $|$SHAP$|$ summed per module.}
+\label{fig:shap}
+\end{figure*}
+
+\subsection{What the Model Relies On}\label{sec:classification-shap}
+Fig.~\ref{fig:shap} shows tree SHAP values \cite{lundberg2017shap,lundberg2020tree} under R. Summed mean $|$SHAP$|$ per module is 0.186 for copy-move keypoints, 0.097 for ELA, 0.048 for edges, 0.044 for noise, 0.039 for JPEG ghosts, 0.024 for copy-move blocks, 0.015 for the histogram and 0.006 for DCT. The single most important feature is the keypoint inlier share, followed by the keypoint shift and the inlier count (log and raw); the most important non-keypoint feature is the spatial clustering (Moran's~I \cite{moran1950}) of texture-normalised ELA. These are within-image evidence, consistent with the ablations.
+
+\subsection{Deployed Models and Sources of Optimism}\label{sec:classification-limits}
+Only the nested-CV numbers of Tables~\ref{tab:cls-auc} and~\ref{tab:cls-added} are fully out-of-fold; the ablations, calibration, uncertain band, SHAP and the deployed models (retrained on all dev images) are mildly optimistic (Appendix~\ref{app:classification}), and only the test set (Section~\ref{sec:test}) is free of these effects.

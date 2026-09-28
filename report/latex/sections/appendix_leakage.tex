@@ -1,0 +1,38 @@
+\section{Splits and Shortcut Study: Details}\label{app:leakage}
+
+Table~\ref{tab:leakage-full} extends Table~\ref{tab:leakage} with the ROC-AUC of each shortcut classifier (random
+forest, 300 trees, balanced class weights; balanced accuracy is the mean over the five grouped dev folds, with the
+standard deviation given for the combined feature set under B and R).
+
+\begin{table}[h]
+\centering
+\caption{Global shortcut features alone: balanced accuracy (ROC-AUC) per protocol}\label{tab:leakage-full}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Features & A: as released & C: JPEG only & B: re-encoded & R: resampled \\
+\midrule
+File metadata & \textbf{0.990} (0.999) & \textbf{0.991} (0.996) & 0.508 (0.510) & 0.503 (0.509) \\
+Image dimensions & 0.603 (0.642) & 0.597 (0.645) & 0.603 (0.642) & 0.604 (0.643) \\
+Naive global ELA & 0.696 (0.778) & 0.678 (0.782) & 0.564 (0.597) & 0.539 (0.556) \\
+Compression history & 0.928 (0.981) & 0.955 (0.990) & \textbf{0.789} (0.870) & 0.608 (0.683) \\
+All shortcuts & 0.989 (0.999) & 0.986 (0.998) & \textbf{0.797} $\pm$ 0.007 (0.876) & \textbf{0.649} $\pm$ 0.011 (0.720) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Split construction.} A near-duplicate candidate needs a 64-bit dHash Hamming distance $\leq 8$, and is
+confirmed only if the $32\times32$ grey thumbnails have a mean absolute difference $<5$ and a correlation $>0.95$.
+dHash alone matched many unrelated photos with smooth gradients; the thumbnail check removes those. With stratified
+group $k$-fold assignment (20 bins, seed 42, strata of forgery type $\times$ file format), every stratum is within
+0.23 percentage points of its target share, except the 54-image BMP stratum, which is within 1.67. The split is
+frozen by SHA-256 hashes of the test file list and of the whole split table.
+
+\textbf{Feature families.} File metadata: format flags, quantisation-table statistics, standard-table flag, bytes
+per pixel. Image dimensions: width, height, aspect ratio, megapixels. Naive global ELA: mean, standard deviation
+and 95th/99th percentiles of one ELA residual at Q=90. Compression history: global double-quantisation statistics
+(histograms of $8\times8$-DCT coefficients at five low frequencies, divided by the last quantisation step) and a
+global JPEG-ghost curve (mean re-compression error at Q = 60, 65, \ldots, 95).
+
+\textbf{Re-encode quality for B} (all shortcuts, balanced accuracy): Q=75 gives 0.791, Q=85 gives 0.797, Q=95 gives
+0.855.

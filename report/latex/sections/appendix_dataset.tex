@@ -1,0 +1,28 @@
+\section{Dataset Audit Details}\label{app:dataset}
+
+\textbf{Mask names.} 142 mask names differ from their image name: 97 differ only in the S/D letter, 44 differ in the
+host or donor id (10 of them use the placeholder id \texttt{xxx00000}), and 1 is named \texttt{\ldots\_gt3.png}.
+Matching on the trailing tamper id, which is unique across the dataset, gives every tampered image exactly one mask.
+
+\textbf{Unusable masks (19).} 5 are transposed (width and height swapped: four $256\times384$ masks for
+$384\times256$ images, and one $638\times336$ mask for a $336\times638$ image); 12 have other sizes (9 differ from the
+image by 1 to 11 pixels, and 3 by 125 to 200 pixels); 2 cover more than 95\% of the image. These 19 images remain in
+the classification experiments but are excluded from localisation scoring.
+
+\textbf{Mask verification.} The reference signal is where the tampered image differs from its background image
+(blurred absolute grey-level difference $>20$). The background image is the named authentic image that best matches
+the area \emph{outside} the mask. It is the host for 5,029 masks and the second-named image for 5, where the ids are
+swapped, so the check was possible for 5,034 masks. The median share of mask pixels that differ from the background
+(recall) is 0.885, and the median share of changed pixels inside the mask (precision) is 0.991. The 52 masks with
+recall $<0.2$ are flagged for inspection but not removed.
+
+\textbf{Which named image is the background?} A tampered file name
+\texttt{Tp\_<S|D>\_\ldots\_<id1>\_<id2>\_<n>} names two authentic images. For every tampered image we measured the
+share of pixels within 10 grey levels of each named image (sizes must match). For the 1,778 splicing-named images
+whose ids differ, \texttt{id1} supplies most pixels in 1,689, \texttt{id2} in 20, and neither in 69 (27 because the
+host has a different size, 42 because neither image matches more than half of the pixels). For the 44
+copy-move-named images with differing ids, the counts are 37, 3 and 4. We therefore treat \texttt{id1} as the host.
+In the 23 images where the second-named image supplies most pixels, 18 are large pastes (the mask, which marks the
+pasted region, covers 52--96\% of the frame) and 5 have swapped ids (the pasted region is small, 0.8--6.8\% of the
+image, and the unmasked background matches \texttt{id2}, so the two ids appear to be swapped in the file name). All
+23 are additionally grouped with the second-named image (Section~\ref{sec:leakage}).

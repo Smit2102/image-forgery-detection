@@ -1,0 +1,39 @@
+\section{Localisation}\label{sec:localisation}
+
+\subsection{Method}\label{sec:localisation-method}
+The eight evidence maps of Section~\ref{sec:method} are reduced to $8 \times 8$-pixel cells. Each cell is described by 16 features: the eight evidence values and their $3 \times 3$-cell neighbourhood means, which add context. Three fusions are compared: the mean of the eight maps (no training), logistic regression, and histogram-based gradient boosting \cite{friedman2001gbm,pedregosa2011sklearn} (300 iterations) on the 16 cell features. The learned fusions are trained on about 2.1--2.3 million cells sampled from training images (Appendix~\ref{app:localisation}); a cell is labelled tampered when at least half of it lies inside the mask.
+
+The cell probability map is upsampled bilinearly, thresholded at $t$, cleaned by morphological opening and then closing with elliptical kernels, and stripped of connected components below a minimum area. These parameters are tuned to maximise mean pixel F1 (grids in Appendix~\ref{app:localisation}). To keep the evaluation honest, the validation images are split into two halves by split group; post-processing is tuned on one half and scored on the other, and the halves swap. The fusion models never see validation images; picking the main method and the best single module by these same numbers slightly flatters both.
+
+For the 769 tampered validation images with a valid mask we compute pixel IoU, F1 and MCC of the final mask and the threshold-free pixel ROC-AUC of the probability map; for the 1,124 authentic validation images, the share with any predicted region and the mean predicted area. Baselines are each single module's map with the same tuning, the \emph{whole image} (F1 $= 2a/(1+a)$ for tampered share $a$) and the \emph{oracle} F1 with the best threshold chosen per image (a reference point, not a strict upper bound).
+
+\begin{table}[!t]
+\centering
+\caption{Localisation on tampered validation images (mean per image; out-of-sample post-processing). GB = gradient boosting, LR = logistic regression.}
+\label{tab:loc-methods}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{lcccccccc}
+\toprule
+ & \multicolumn{4}{c}{Protocol R} & \multicolumn{4}{c}{Protocol B} \\
+Method & F1 & IoU & MCC & AUC & F1 & IoU & MCC & AUC \\
+\midrule
+GB fusion & \textbf{0.185} & 0.119 & \textbf{0.159} & \textbf{0.695} & \textbf{0.260} & \textbf{0.176} & \textbf{0.254} & \textbf{0.806} \\
+LR fusion & 0.184 & 0.121 & 0.155 & 0.686 & 0.237 & 0.158 & 0.224 & 0.786 \\
+Mean of 8 maps & 0.159 & 0.099 & 0.100 & 0.671 & 0.175 & 0.113 & 0.150 & 0.734 \\
+Copy-move kp.\ only & 0.152 & 0.102 & 0.130 & 0.620 & 0.179 & 0.121 & 0.158 & 0.644 \\
+Whole image & 0.136 & 0.086 & -- & -- & 0.136 & 0.086 & -- & -- \\
+\emph{Oracle thr.\ (GB)} & \emph{0.308} & -- & -- & -- & \emph{0.436} & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Results}\label{sec:localisation-results}
+Table~\ref{tab:loc-methods} summarises the methods; the best single module is copy-move keypoints. Learned fusion is clearly better than any single cue: under R, gradient boosting reaches F1 0.185 against 0.152 for the best single module and 0.159 for the plain average (F1 CI\ci{0.168}{0.200}; all CIs in Appendix~\ref{app:localisation}). Under R no single module beats the trivial whole-image baseline by much, while the combination does; under B the gap is wider (0.260 vs 0.179) and copy-move keypoints alone already beat that baseline clearly. Protocol B localises better than R (F1 0.260 vs 0.185; pixel AUC 0.806 vs 0.695) because the compression modules still see the pasted region's different compression history, which resampling largely removes; for localisation this within-image evidence is genuine (Section~\ref{sec:params}), unlike the global shortcut of Section~\ref{sec:leakage}.
+
+Absolute scores are low; the median tampered region covers 3\% of the image. The oracle F1 (0.31 under R, 0.44 under B) shows that a perfect per-image threshold would raise F1 by about 1.7$\times$, suggesting that much of the gap lies in choosing the threshold for each image rather than in ranking the pixels. By tampered area (R), F1 rises from 0.034 below 1\% to 0.309 above 5\% (Appendix~\ref{app:localisation}); very small regions are essentially not localised. By forgery type (R), copy-move reaches F1 0.204 and splicing 0.152 (B: 0.302 and 0.184), consistent with Section~\ref{sec:classification}. The failure modes (examples in Fig.~\ref{fig:loc-examples}, Appendix~\ref{app:localisation}) are tiny regions, where the probability peak lands elsewhere; large uniform pasted areas (sky, water) with little texture for any module; and textured authentic regions that attract spurious evidence.
+
+\subsection{Gating With the Image Classifier}\label{sec:localisation-gating}
+On authentic images the fused mask is rarely empty (a region on 89\% of authentic validation images under R), so the system shows the mask only when the calibrated image-level verdict (Section~\ref{sec:classification}) is not ``authentic''; this cuts the share of authentic images with a false region from 89\% to 42\% under R and from 71\% to 10\% under B, at a small cost in tampered-image F1 (0.186 $\to$ 0.175 under R; Appendix~\ref{app:localisation}).
+
+\emph{Limitations.} Tuning and evaluation use disjoint halves of the same validation set, and the deployed parameters (Appendix~\ref{app:localisation}) are tuned on all of it, so only the test set (Section~\ref{sec:test}) gives a fully independent estimate. The $8 \times 8$ cells limit boundary accuracy (not quantified separately), and tampered images without a valid mask are excluded from scoring.

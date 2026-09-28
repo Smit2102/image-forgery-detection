@@ -1,0 +1,68 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{iftex}
+\usepackage{amsmath,amssymb}
+\ifXeTeX                                    % Tectonic / XeLaTeX: Times via TeX Gyre Termes
+  \usepackage[varg]{newtxmath}
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+    ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\else                                       % pdfLaTeX
+  \usepackage[T1]{fontenc}
+  \usepackage{newtxtext,newtxmath}
+\fi
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{siunitx}
+\sisetup{detect-all}
+\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{xcolor}
+\usepackage{balance}
+\graphicspath{{figures/}}
+
+% Small helpers used throughout the sections
+\newcommand{\ci}[2]{\,[#1,\,#2]}          % confidence interval
+\newcommand{\protR}{\textsc{R}}
+\newcommand{\protB}{\textsc{B}}
+\newcommand{\protA}{\textsc{A}}
+
+\begin{document}
+
+\title{Interpretable Classical Forgery Detection on CASIA~v2.0:\\
+Exposing Format Shortcuts and Evaluating Under Leak-Controlled Protocols}
+
+\author{\IEEEauthorblockN{Smit Patel (ID 2479966)}
+\IEEEauthorblockA{EDS 6364 --- Digital Image Processing\\
+Final project report}}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_related}
+\input{sections/03_dataset}
+\input{sections/04_leakage}
+\input{sections/05_method}
+\input{sections/06_parameters}
+\input{sections/07_classification}
+\input{sections/08_localisation}
+\input{sections/09_test}
+\input{sections/10_robustness}
+\input{sections/11_cnn}
+\input{sections/12_system}
+\input{sections/13_conclusion}
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\clearpage
+\onecolumn
+\appendices
+\input{sections/appendix}
+
+\end{document}

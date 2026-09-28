@@ -1,0 +1,61 @@
+\section{Method: Forensic Feature Modules}\label{sec:method}
+
+\subsection{Common Design}\label{sec:method-design}
+
+Every module maps an RGB image to two outputs: an \emph{evidence map} (float, $[0,1]$, image-sized; bright =
+suspicious), used for localisation, and a set of \emph{scalar features}, used for image-level classification.
+Section~\ref{sec:leakage} showed that \emph{global} image statistics on CASIA~v2.0 largely measure compression
+history rather than tampering. Each module therefore reduces its evidence to a \emph{block map} and describes it
+with \emph{within-image inconsistency} statistics (\texttt{local\_*}). All of these are scale-free, so they compare
+a region with the rest of the same image rather than with other images: the robust z-score of the most extreme
+block and its 99th percentile, where $z = (\text{value} - \text{median}) / (1.4826\cdot\text{MAD})$; the share of
+blocks with $z>3$; the size of the largest connected cluster of blocks with $z>2.5$; Moran's~$I$ spatial
+autocorrelation~\cite{moran1950}; and the mean robust z-score of the top 5\% of blocks, which stays scale-free for
+signed and log-valued maps. Absolute image-wide levels are kept separately as \texttt{global\_*} features, so that
+Section~\ref{sec:classification} can test whether they act as shortcuts.
+
+\emph{Flat and clipped regions carry no evidence.} A textured object on a plain black background has, trivially, a
+different error level and noise level from its surroundings. Blocks whose grey-level standard deviation is below a
+threshold, or whose mean is within 4 grey levels of black or white, are therefore excluded from the statistics and
+receive zero evidence. This was added after a sanity check showed four modules lighting up on an authentic studio
+photograph. All modules, including the noise module, use the same validity mask.
+
+\subsection{The Eight Modules}\label{sec:method-modules}
+
+Table~\ref{tab:modules} lists the modules and the DIP technique family each one exercises. Together they cover all
+five families required by the course: \emph{point processing} (ELA~\cite{krawetz2007ela} and JPEG
+ghosts~\cite{farid2009ghost}), \emph{histogram processing} (patch-histogram $\chi^2$ on a histogram-equalised
+residual), \emph{spatial filtering} (the Immerk{\ae}r noise residual~\cite{immerkaer1996noise}), the
+\emph{frequency domain} (DCT double quantisation after Lin et al.~\cite{lin2009dq}, and block-DCT copy-move
+matching~\cite{fridrich2003copymove}), and \emph{edge and corner detection} (Canny~\cite{canny1986} edge
+sharpness, and SIFT~\cite{lowe2004sift} or Harris~\cite{harris1988} keypoints for copy-move detection with g2NN
+matching~\cite{amerini2011sift} and RANSAC~\cite{fischler1981ransac}). Fig.~\ref{fig:modules} shows the evidence
+maps of all eight modules under protocol R.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_modules_R.png}
+\caption{Evidence maps of the eight modules under protocol R (bright = suspicious) for two splicing images, one
+copy-move image and one authentic image. The first column shows the image with its ground-truth mask in red; the
+other columns outline the mask in cyan.}
+\label{fig:modules}
+\end{figure*}
+
+\subsection{DCT and Copy-Move Details}\label{sec:method-details}
+
+Under B and R the DCT module uses the exact IJG Q85 quantisation table (a blind step estimate is used only when
+the last compression is unknown) and declares a frequency periodic when a permutation test on its detrended
+log-histogram gives $p\leq\alpha$, with $\alpha$ tuned in Section~\ref{sec:params}; on dedicated test
+cases at $\alpha=0.01$ the false-positive rate is 0--3\%, against 16--48\% for an earlier fixed threshold, but some regular
+double-quantisation patterns are missed (Appendix~\ref{app:method}). Because several CASIA copy-moves are
+horizontally flipped, both copy-move detectors also match the image against its mirror image, and keypoint pairs
+are oriented left-to-right before RANSAC; one RANSAC fit is run per matching mode (direct and mirrored), so the
+keypoint detector recovers at most one copied region per mode.
+
+\subsection{Verification}\label{sec:method-verification}
+
+Each module has a unit test on a \emph{synthetic forgery with a known region} (e.g.\ an uncompressed region
+inside a Q60 image for ELA, a single-compressed region inside a double-compressed image for DCT, plain and mirrored
+copies for copy-move; full list in Appendix~\ref{app:method}). In every case the evidence map is clearly higher
+inside the planted region, and a clean image yields no copy-move votes. Contract tests cover tiny, narrow, flat and
+black images, and check determinism.
