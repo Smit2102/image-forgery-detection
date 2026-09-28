@@ -1,0 +1,6 @@
+*.png -delta
+*.jpg -delta
+*.jpeg -delta
+*.pdf -delta
+*.npz -delta
+*.zip -delta
