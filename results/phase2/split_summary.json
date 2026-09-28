@@ -1,0 +1,37 @@
+{
+  "n_host_groups": 7491,
+  "n_split_groups": 7262,
+  "merges_exact_duplicate": 196,
+  "near_duplicate_pairs": 694,
+  "merges_near_duplicate": 17,
+  "merges_donor_dominant": 16,
+  "largest_split_group": 69,
+  "near_dup_hamming": 8,
+  "near_dup_max_mad": 5.0,
+  "near_dup_min_corr": 0.95,
+  "test_sha256": "a437cb81bb74d6f8cb9030adb6ffbba5bb41b0201fad49b94d981c9ffca0b9b4",
+  "full_split_sha256": "6991cc0c03323bd7e3fd9900d188ddb706760cb5ddaa42fb9adb0d7d74a04468",
+  "n": {
+    "train": 8828,
+    "val": 1894,
+    "test": 1892
+  },
+  "n_cv_fold": {
+    "0": 2145,
+    "1": 2146,
+    "2": 2142,
+    "3": 2145,
+    "4": 2144
+  },
+  "tampered_with_donor_in_other_split": 830,
+  "tampered_with_donor_in_other_split_by_type": {
+    "splicing": 828,
+    "copy-move": 2
+  },
+  "donor_cross_tampered_frac_median": 0.0554,
+  "donor_cross_tampered_frac_p90": 0.345,
+  "largest_group_if_donors_were_merged": 4027,
+  "largest_group_if_donors_were_merged_share": 0.319,
+  "max_stratum_deviation_pp": 0.23,
+  "max_stratum_deviation_pp_bmp": 1.67
+}
