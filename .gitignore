@@ -1,0 +1,35 @@
+# environment
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.DS_Store
+
+# dataset (3.3 GB, obtained separately from Kaggle) and regenerable caches
+CASIA2/
+data/cache/
+data/maps/
+data/features/
+
+# ad-hoc CLI outputs
+results/detect/
+
+# trained models (regenerable with scripts/run_phase5.py)
+models/*.joblib
+models/*.pt
+data/ela/
+
+# external datasets and generated synthetic forgeries (regenerable)
+data/external/
+data/synthetic/
+
+# LaTeX build products (the final PDF is report/Patel_ImageForgeryDetection_report.pdf)
+report/latex/main.pdf
+report/latex/*.log
+report/latex/*.aux
+report/latex/*.bbl
+report/latex/*.blg
+report/latex/*.out
+
+# smoke-test outputs (regenerable with --smoke)
+results/phase8_smoke/
