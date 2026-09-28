@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Streamlit app (Home.py)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "streamlit",
+      "args": ["run", "${workspaceFolder}/app/Home.py"],
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      "name": "detect.py on an image",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/detect.py",
+      "args": ["${input:imagePath}"],
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "inputs": [
+    {"id": "imagePath", "type": "promptString", "description": "Image to analyse",
+     "default": "data/external/MICC-F220/CRW_4853tamp1.jpg"}
+  ]
+}

@@ -1,0 +1,68 @@
+# Central configuration for the forgery-detection project.
+# All paths are relative to the project root.
+
+seed: 42
+n_jobs: 8
+
+paths:
+  casia_root: CASIA2
+  authentic_dir: CASIA2/Au
+  tampered_dir: CASIA2/Tp
+  mask_dir: CASIA2/CASIA 2 Groundtruth
+  manifest: data/manifest.csv
+  splits: data/splits.csv
+  test_hash: data/test_split.sha256
+  cache_dir: data/cache
+  results_dir: results
+
+# Evaluation protocols (see report/drafts/02_splits_and_leakage.md)
+#   A: images exactly as released (TIFF/BMP/JPEG mix)
+#   C: JPEG-only subset, as released (supplementary)
+#   B: every image re-encoded once to JPEG at a fixed quality (removes container/metadata shortcuts;
+#      global compression history still survives)
+#   R: "strict" - downscaled by `factor` (area interpolation), then re-encoded; erases most global
+#      compression history, at the cost of JPEG-grid forensic traces. Masks are resized to match.
+protocols:
+  B:
+    jpeg_quality: 85
+    subsampling: "4:2:0"
+  R:
+    factor: 0.75
+    jpeg_quality: 85
+    subsampling: "4:2:0"
+  B_quality_sensitivity: [75, 85, 95]
+
+splits:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+  n_cv_folds: 5
+  # stratify on forgery type x file format; split groups merge host id + exact/near duplicates
+  n_split_bins: 20
+  near_dup_hamming: 8        # dHash candidate threshold...
+  near_dup_max_mad: 5.0      # ...confirmed by 32x32 thumbnail mean-abs-diff
+  near_dup_min_corr: 0.95    # ...and correlation
+
+masks:
+  binarize_threshold: 127
+  host_diff_threshold: 20   # grey-level difference used for the mask-vs-host sanity check
+
+leakage:
+  naive_ela_quality: 90
+  rf_trees: 300
+
+# Feature-module parameters (Phase 3 defaults; Phase 4 sweeps and fixes them). Keys = module names.
+features:
+  ela: {block: 8, min_std: 2.0, quality: 85, texture_c: 16.0}
+  histogram: {bins: 16, min_std: 2.0, patch: 16, quality: 75}
+  noise: {block: 8, edge_quantile: 0.8, kernel: immerkaer, min_pixels: 16, min_std: 2.0}
+  jpeg_ghost: {block: 16, min_std: 4.0}
+  dct_dq: {alpha: 0.05, n_freq: 15}
+  edges: {block: 16, high: 90, low: 30, min_edge_pixels: 6}
+  cm_keypoint: {contrast: 0.01, detector: sift, min_inliers: 4, min_shift: 20.0, mirror: true, ransac_px: 3.0, ratio: 0.6}
+  cm_block: {block: 16, min_std: 4.0, min_votes: 8, mirror: true, n_coef: 9, stride: 4, tol: 1.5}
+
+# Verdict policy used by detect() once a model exists (calibrated in Phase 5)
+verdict:
+  uncertain_low: 0.40
+  uncertain_high: 0.60

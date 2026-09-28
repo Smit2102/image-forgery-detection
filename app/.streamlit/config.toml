@@ -1,0 +1,16 @@
+# Local use only: the batch page can read folders on this computer, so do not expose the app on the network.
+[server]
+address = "localhost"
+port = 8510            # 8501/8502 are often taken (e.g. by other Streamlit apps or Docker containers)
+headless = false
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "dark"
+primaryColor = "#6366F1"
+backgroundColor = "#0A0E1A"
+secondaryBackgroundColor = "#131C31"
+textColor = "#F1F5F9"
+font = "sans serif"
