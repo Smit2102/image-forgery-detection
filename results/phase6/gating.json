@@ -1,0 +1,26 @@
+{
+  "R": {
+    "band": 0.24,
+    "authentic_any_region_ungated": 0.891459074733096,
+    "authentic_any_region_gated": 0.42170818505338076,
+    "authentic_mean_area_ungated": 0.055638804247714536,
+    "authentic_mean_area_gated": 0.03653768881750347,
+    "tampered_shown": 0.8426527958387516,
+    "tampered_f1_ungated": 0.18587288872094754,
+    "tampered_f1_gated": 0.17518165279522274,
+    "n_authentic": 1124,
+    "n_tampered": 769
+  },
+  "B": {
+    "band": 0.04,
+    "authentic_any_region_ungated": 0.7072953736654805,
+    "authentic_any_region_gated": 0.099644128113879,
+    "authentic_mean_area_ungated": 0.02528716314819819,
+    "authentic_mean_area_gated": 0.006892284179626366,
+    "tampered_shown": 0.7620286085825748,
+    "tampered_f1_ungated": 0.2611202108762139,
+    "tampered_f1_gated": 0.2251383223292734,
+    "n_authentic": 1124,
+    "n_tampered": 769
+  }
+}

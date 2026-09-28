@@ -1,0 +1,16 @@
+device mps; dev 10722 images; out /Users/smitpatel/Desktop/DIP Project/results/phase8
+  preflight OK
+  [R] CNN 0.770  classical 0.805  combination 0.824  delta -0.036 [-0.067, -0.005]
+  [R] clean                      CNN 0.770 (unpadded 0.771, 1% padded)  classical 0.805 (37s)
+  [R] JPEG Q75                   CNN 0.762 (unpadded 0.763, 1% padded)  classical 0.799 (36s)
+  [R] resize x0.5                CNN 0.685 (unpadded 0.670, 95% padded)  classical 0.693 (20s)
+  [R] social (x0.8 + JPEG Q70)   CNN 0.733 (unpadded 0.729, 82% padded)  classical 0.762 (34s)
+  [R] MICC-F220: CNN 0.529  classical 0.972
+  [B] CNN 0.811  classical 0.920  combination 0.903  delta -0.109 [-0.128, -0.088]
+  [B] clean                      CNN 0.811 (unpadded 0.811, 1% padded)  classical 0.920 (83s)
+  [B] JPEG Q75                   CNN 0.746 (unpadded 0.746, 1% padded)  classical 0.739 (79s)
+  [B] resize x0.5                CNN 0.672 (unpadded 0.690, 87% padded)  classical 0.698 (24s)
+  [B] social (x0.8 + JPEG Q70)   CNN 0.674 (unpadded 0.677, 1% padded)  classical 0.721 (63s)
+  [B] MICC-F220: CNN 0.454  classical 0.902
+  [A] CNN 0.994  classical 0.981  combination 0.996  delta +0.014 [+0.008, +0.019]
+EXIT=0

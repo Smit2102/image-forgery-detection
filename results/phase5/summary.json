@@ -1,0 +1,62 @@
+{
+  "main_protocol": "R",
+  "report_protocol": "R",
+  "mcnemar_rf_vs_svm": {
+    "a_right_b_wrong": 603,
+    "a_wrong_b_right": 644,
+    "p_value": 0.2573182866044448
+  },
+  "uncertain_half_width": {
+    "B": 0.04,
+    "R": 0.24
+  },
+  "at_band": {
+    "B": {
+      "coverage": 0.9633,
+      "accuracy": 0.8508,
+      "balanced_accuracy": 0.8385
+    },
+    "R": {
+      "coverage": 0.5124,
+      "accuracy": 0.8555,
+      "balanced_accuracy": 0.8105
+    }
+  },
+  "ece_raw": 0.033871113900587765,
+  "brier_raw": 0.17614948178028753,
+  "ece_calibrated": 0.008682897893209227,
+  "brier_calibrated": 0.17540301272870953,
+  "type_classifier_auc_copymove_vs_splicing": {
+    "B": 0.8744295826438684,
+    "R": 0.830478258871116
+  },
+  "shap_by_module": {
+    "cm_keypoint": 0.1864,
+    "ela": 0.0975,
+    "edges": 0.0478,
+    "noise": 0.0443,
+    "jpeg_ghost": 0.039,
+    "cm_block": 0.0236,
+    "histogram": 0.0154,
+    "dct_dq": 0.0062
+  },
+  "rf_params": {
+    "max_features": "sqrt",
+    "min_samples_leaf": 4
+  },
+  "rf_params_per_protocol": {
+    "B": {
+      "max_features": 0.3,
+      "min_samples_leaf": 4
+    },
+    "R": {
+      "max_features": "sqrt",
+      "min_samples_leaf": 4
+    },
+    "A": {
+      "max_features": 0.3,
+      "min_samples_leaf": 1
+    }
+  },
+  "reused_cv": false
+}

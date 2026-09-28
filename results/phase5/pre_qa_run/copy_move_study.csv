@@ -1,0 +1,13 @@
+protocol,features,auc_copymove_vs_authentic,pixel_auc_copymove,share_pixel_auc_gt_0.6
+B,keypoint,0.8436927943287867,,
+B,block,0.6454783964465183,,
+B,both,0.8688613547648959,,
+B,all modules,0.9250966607591529,,
+B,cm_keypoint localisation (Phase 4 val sample),,0.716155583710594,0.5591054313099042
+B,cm_block localisation (Phase 4 val sample),,0.5464836650981613,0.2012779552715655
+R,keypoint,0.8200840699030869,,
+R,block,0.6506037161252691,,
+R,both,0.8376333677315146,,
+R,all modules,0.8628971868269921,,
+R,cm_keypoint localisation (Phase 4 val sample),,0.6815253471808196,0.4792332268370607
+R,cm_block localisation (Phase 4 val sample),,0.5294857782344065,0.121405750798722

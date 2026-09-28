@@ -1,0 +1,144 @@
+{
+  "created": "2026-09-24T20:12:17",
+  "run": 1,
+  "localisation_paired": {
+    "R": {
+      "fusion_minus_mean_of_maps": [
+        0.028533888213478093,
+        0.013384912764716607,
+        0.044654128844941306
+      ],
+      "fusion_minus_single:cm_keypoint": [
+        0.02345806122945052,
+        0.009409681679656383,
+        0.03657001518867205
+      ]
+    },
+    "B": {
+      "fusion_minus_mean_of_maps": [
+        0.10054980730310724,
+        0.07976908698826785,
+        0.11997606838881321
+      ],
+      "fusion_minus_single:cm_keypoint": [
+        0.0961540779575345,
+        0.07565980537353476,
+        0.11417552910729123
+      ]
+    }
+  },
+  "false_alarm_copymove_evidence": {
+    "FP": {
+      "median_inliers": 13.0,
+      "median_keypoints": 1500.0,
+      "share_with_inliers": 1.0,
+      "n": 13
+    },
+    "TN": {
+      "median_inliers": 0.0,
+      "median_keypoints": 732.0,
+      "share_with_inliers": 0.0,
+      "n": 619
+    }
+  },
+  "enrichment_holm": [
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "texture: low",
+      "ratio": 1.2287,
+      "fisher_p": 0.1661,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "texture: high",
+      "ratio": 1.0806,
+      "fisher_p": 0.6403,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "flat area > 30 %",
+      "ratio": 1.2875,
+      "fisher_p": 0.4072,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "saturated > 5 %",
+      "ratio": 1.0571,
+      "fisher_p": 0.8497,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "keypoints: lowest tercile",
+      "ratio": 2.3747,
+      "fisher_p": 0.0,
+      "holm_p": 0.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "area < 1 %",
+      "ratio": 1.4095,
+      "fisher_p": 0.2784,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "area > 5 %",
+      "ratio": 0.5688,
+      "fisher_p": 0.0,
+      "holm_p": 0.0001
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "splicing",
+      "ratio": 22.3175,
+      "fisher_p": 0.0,
+      "holm_p": 0.0
+    },
+    {
+      "comparison": "missed tampered (FN) vs detected (TP)",
+      "tag": "JPEG source",
+      "ratio": 1.43,
+      "fisher_p": 0.0147,
+      "holm_p": 0.1614
+    },
+    {
+      "comparison": "false alarm (FP) vs correct authentic (TN)",
+      "tag": "texture: low",
+      "ratio": 0.8618,
+      "fisher_p": 1.0,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "false alarm (FP) vs correct authentic (TN)",
+      "tag": "texture: high",
+      "ratio": 0.9523,
+      "fisher_p": 1.0,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "false alarm (FP) vs correct authentic (TN)",
+      "tag": "flat area > 30 %",
+      "ratio": 0.9523,
+      "fisher_p": 1.0,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "false alarm (FP) vs correct authentic (TN)",
+      "tag": "saturated > 5 %",
+      "ratio": 0.5473,
+      "fisher_p": 1.0,
+      "holm_p": 1.0
+    },
+    {
+      "comparison": "false alarm (FP) vs correct authentic (TN)",
+      "tag": "keypoints: lowest tercile",
+      "ratio": 0.3353,
+      "fisher_p": 0.0449,
+      "holm_p": 0.4489
+    }
+  ]
+}

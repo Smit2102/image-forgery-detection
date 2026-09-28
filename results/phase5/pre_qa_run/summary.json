@@ -1,0 +1,32 @@
+{
+  "main_protocol": "R",
+  "report_protocol": "R",
+  "mcnemar_rf_vs_svm": {
+    "a_right_b_wrong": 622,
+    "a_wrong_b_right": 592,
+    "p_value": 0.40524010052501813
+  },
+  "uncertain_half_width": 0.22,
+  "ece_raw": 0.029777254205476136,
+  "brier_raw": 0.17011088549735703,
+  "ece_calibrated": 0.005480526829248355,
+  "brier_calibrated": 0.16939039864159525,
+  "type_classifier_auc_copymove_vs_splicing": {
+    "B": 0.872520454127597,
+    "R": 0.8335608567751425
+  },
+  "shap_by_module": {
+    "cm_keypoint": 0.1947,
+    "ela": 0.1526,
+    "edges": 0.0429,
+    "jpeg_ghost": 0.0301,
+    "cm_block": 0.0274,
+    "noise": 0.0264,
+    "dct_dq": 0.0226,
+    "histogram": 0.0119
+  },
+  "rf_params": {
+    "max_features": 0.3,
+    "min_samples_leaf": 4
+  }
+}

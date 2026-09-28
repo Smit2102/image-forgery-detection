@@ -1,0 +1,97 @@
+{
+  "created": "2026-09-27T18:23:05",
+  "note": "written before the CNN sees the test split; the test stage refuses to run if a model changed",
+  "models": {
+    "R": {
+      "file": "models/cnn_R.pt",
+      "sha1": "325d841104913e6a2b6748097e0334f845668c7b",
+      "protocol": "R",
+      "epochs": 3,
+      "aggregator": "max",
+      "selection_val_auc": 0.7461397143781486,
+      "seed": 42,
+      "trained_on": "train+val",
+      "n_train": 10722,
+      "crop": 192,
+      "stride": 96,
+      "ela_quality": 90,
+      "ela_scale": 10,
+      "cnn_code_sha1": "57e797bd492a77d4a46e09f714472940872bd470",
+      "created": "2026-09-27T17:28:42"
+    },
+    "B": {
+      "file": "models/cnn_B.pt",
+      "sha1": "d625214bb2114b1561e0586550f29e641c44958d",
+      "protocol": "B",
+      "epochs": 8,
+      "aggregator": "mean",
+      "selection_val_auc": 0.7972454591671672,
+      "seed": 42,
+      "trained_on": "train+val",
+      "n_train": 10722,
+      "crop": 192,
+      "stride": 96,
+      "ela_quality": 90,
+      "ela_scale": 10,
+      "cnn_code_sha1": "57e797bd492a77d4a46e09f714472940872bd470",
+      "created": "2026-09-27T17:50:19"
+    },
+    "A": {
+      "file": "models/cnn_A.pt",
+      "sha1": "452d2aeacf81c7624b11cca8da6617b45b39b9df",
+      "protocol": "A",
+      "epochs": 12,
+      "aggregator": "mean",
+      "selection_val_auc": 0.9937237140084116,
+      "seed": 42,
+      "trained_on": "train+val",
+      "n_train": 10722,
+      "crop": 192,
+      "stride": 96,
+      "ela_quality": 90,
+      "ela_scale": 10,
+      "cnn_code_sha1": "57e797bd492a77d4a46e09f714472940872bd470",
+      "created": "2026-09-27T18:23:05"
+    }
+  },
+  "script_sha1": "f695477009efcc3fe01156d8ce4733ccc9fa462b",
+  "selection_csv_sha1": "53b260ae0bc9d17b59a78c5b2701df739454768e",
+  "ela_meta": {
+    "ela_quality": 90,
+    "ela_scale": 10,
+    "ela_image_sha1": "00a16f12e8b00bd386110f06ce7ab7b90ba9a4ab",
+    "protocols": {
+      "B": {
+        "jpeg_quality": 85,
+        "subsampling": "4:2:0"
+      },
+      "R": {
+        "factor": 0.75,
+        "jpeg_quality": 85,
+        "subsampling": "4:2:0"
+      },
+      "B_quality_sensitivity": [
+        75,
+        85,
+        95
+      ]
+    }
+  },
+  "classical_comparator": "forensic_all|rf test scores of results/phase7/run_1 (Phase 7 run 1, frozen)",
+  "primary": [
+    "test AUC of the protocol-R CNN, with a 95% group-bootstrap CI",
+    "paired test delta AUC, CNN - classical (forensic_all|rf), protocols R and B",
+    "paired delta AUC, rank-average(CNN, classical) - classical, protocols R and B"
+  ],
+  "secondary": [
+    "paired delta AUC, CNN - forensic+shortcuts|rf (classical forensic + shortcut features: the CNN can see naive-ELA level and, through max pooling, image size)",
+    "protocol A: CNN vs shortcuts (does an ELA-CNN learn the format leak?)",
+    "JPEG-only subset (authentic JPEG vs tampered JPEG) and per forgery type: AUCs with paired deltas",
+    "image size: AUC of the tile count alone, and CNN / classical AUC within tile-count terciles (validation and test)",
+    "Spearman correlation of the CNN and classical scores",
+    "test AUC under clean + ['JPEG Q75', 'resize x0.5', 'social (x0.8 + JPEG Q70)'] for R and B, paired vs classical; share of images smaller than one tile (zero-padded); analysis variant without padding",
+    "MICC-F220 AUC for R and B, paired vs classical"
+  ],
+  "combination": "mean of the two scores' within-set ranks (fixed, not tuned; uses no labels, but is transductive, i.e. not a per-image score one could deploy)",
+  "not_reported": "balanced accuracy of the CNN: its logit is uncalibrated (max pooling, class weights) and no threshold was fixed on validation"
+}

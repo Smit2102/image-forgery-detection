@@ -1,0 +1,15 @@
+# SHA-1 of run_1 outputs, recorded 2026-09-24T20:12:17
+83b5cf4a6b565ea2ce7b35bbefdee39cb6a8c84f  failure_enrichment_R.csv
+599f34486589541871320f63ad52e09abc885ac4  fig_failures_R.png
+422eb98dbedd08823ee48499aef544f450a559ca  fig_roc_test_R.png
+7f662eca132c4dca287d5ebfdc1bc7ab28da8941  localisation_per_image_B.csv
+7e54150d7b23b591d2979811e6e87c98fec9b16a  localisation_per_image_R.csv
+3790bd1fe47370fd3b3a7fb40df674c3adf84c1f  summary.json
+86d01004e60912c6ef32ab4d80eaa2ad64a5e35d  test_added_value.csv
+e95bf88d4e3b7e6a820e8098a1c3577fe8c3b425  test_classification.csv
+ed92b91c4105d810db3873ee52cd735d16aff0df  test_outcomes_R.csv
+e9122119ab29d9fd6857752f3a1165d53d88b4a9  test_results.md
+ff398370ad12800bc792b1def144b6d3bb96a54e  test_runs.log
+fb9bd2ae44718ad8cb22404a5047efe5cc6bfbe8  test_scores_A.csv
+fdef521d9231f7d7e93b1d3c5855cf23cb444236  test_scores_B.csv
+b93c5a4d6ade368628180d25a20251b95b386d63  test_scores_R.csv

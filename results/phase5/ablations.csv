@@ -1,0 +1,51 @@
+protocol,variant,module,auc,drop_vs_all
+B,all modules,-,0.9101256382394286,
+B,module alone,ela,0.7232655728112312,
+B,module alone (local only),ela,0.7027556571615542,
+B,leave one out,ela,0.9101436356102977,-1.799737086904951e-05
+B,module alone,histogram,0.5693674937618732,
+B,module alone (local only),histogram,0.5635245156651424,
+B,leave one out,histogram,0.9108998137218015,-0.0007741754823729075
+B,module alone,noise,0.6454145007305707,
+B,module alone (local only),noise,0.6387746610867844,
+B,leave one out,noise,0.9101355566301881,-9.91839075947798e-06
+B,module alone,jpeg_ghost,0.758369318457238,
+B,module alone (local only),jpeg_ghost,0.7508867762676497,
+B,leave one out,jpeg_ghost,0.900036723292623,0.010088914946805638
+B,module alone,dct_dq,0.8213895110024166,
+B,module alone (local only),dct_dq,0.7997141123047484,
+B,leave one out,dct_dq,0.8642380771565684,0.045887561082860184
+B,module alone,edges,0.6259076950554334,
+B,module alone (local only),edges,0.6074784954861583,
+B,leave one out,edges,0.911059878515222,-0.0009342402757933632
+B,module alone,cm_keypoint,0.7474756072507692,
+B,module alone (local only),cm_keypoint,0.7375421946376347,
+B,leave one out,cm_keypoint,0.8706624893530583,0.03946314888637026
+B,module alone,cm_block,0.5997053444473169,
+B,module alone (local only),cm_block,0.5940480566590416,
+B,leave one out,cm_block,0.909824263427842,0.00030137481158665214
+R,all modules,-,0.7949413466044047,
+R,module alone,ela,0.6637073314436215,
+R,module alone (local only),ela,0.6377776824810779,
+R,leave one out,ela,0.7817449817992119,0.013196364805192817
+R,module alone,histogram,0.5664763008889186,
+R,module alone (local only),histogram,0.5550211726985872,
+R,leave one out,histogram,0.7958540910224066,-0.0009127444180018207
+R,module alone,noise,0.6167403969779998,
+R,module alone (local only),noise,0.6120438405855645,
+R,leave one out,noise,0.7907372112630215,0.004204135341383197
+R,module alone,jpeg_ghost,0.6240163841716622,
+R,module alone (local only),jpeg_ghost,0.6175735057349218,
+R,leave one out,jpeg_ghost,0.7935130262012867,0.0014283204031180219
+R,module alone,dct_dq,0.5188513443134368,
+R,module alone (local only),dct_dq,0.5167068439637323,
+R,leave one out,dct_dq,0.79439233662571,0.0005490099786947811
+R,module alone,edges,0.6053093975273705,
+R,module alone (local only),edges,0.597637684575842,
+R,leave one out,edges,0.7928088925911135,0.0021324540132912073
+R,module alone,cm_keypoint,0.7199785459797841,
+R,module alone (local only),cm_keypoint,0.7136918551473489,
+R,leave one out,cm_keypoint,0.7145307526377871,0.08041059396661765
+R,module alone,cm_block,0.5785249816491738,
+R,module alone (local only),cm_block,0.5690873082396365,
+R,leave one out,cm_block,0.792142412798951,0.002798933805453707

@@ -1,0 +1,188 @@
+{
+  "B": {
+    "features": {
+      "ela": {
+        "block": 8,
+        "min_std": 2.0,
+        "quality": 85,
+        "texture_c": 16.0
+      },
+      "histogram": {
+        "bins": 16,
+        "min_std": 2.0,
+        "patch": 16,
+        "quality": 75
+      },
+      "noise": {
+        "block": 8,
+        "edge_quantile": 0.8,
+        "kernel": "immerkaer",
+        "min_pixels": 16,
+        "min_std": 2.0
+      },
+      "jpeg_ghost": {
+        "block": 16,
+        "min_std": 4.0
+      },
+      "dct_dq": {
+        "alpha": 0.05,
+        "n_freq": 15,
+        "last_quality": 85
+      },
+      "edges": {
+        "block": 16,
+        "high": 90,
+        "low": 30,
+        "min_edge_pixels": 6
+      },
+      "cm_keypoint": {
+        "contrast": 0.01,
+        "detector": "sift",
+        "min_inliers": 4,
+        "min_shift": 20.0,
+        "mirror": true,
+        "ransac_px": 3.0,
+        "ratio": 0.6
+      },
+      "cm_block": {
+        "block": 16,
+        "min_std": 4.0,
+        "min_votes": 8,
+        "mirror": true,
+        "n_coef": 9,
+        "stride": 4,
+        "tol": 1.5
+      }
+    },
+    "protocol": "B",
+    "protocol_cfg": {
+      "jpeg_quality": 85,
+      "subsampling": "4:2:0"
+    },
+    "code_sha1": "a057618b304e63358cef8f4230428e82a6d73639",
+    "paths_sha1": "2cb589138f8c6e4f2844adc360104d88252edf36"
+  },
+  "R": {
+    "features": {
+      "ela": {
+        "block": 8,
+        "min_std": 2.0,
+        "quality": 85,
+        "texture_c": 16.0
+      },
+      "histogram": {
+        "bins": 16,
+        "min_std": 2.0,
+        "patch": 16,
+        "quality": 75
+      },
+      "noise": {
+        "block": 8,
+        "edge_quantile": 0.8,
+        "kernel": "immerkaer",
+        "min_pixels": 16,
+        "min_std": 2.0
+      },
+      "jpeg_ghost": {
+        "block": 16,
+        "min_std": 4.0
+      },
+      "dct_dq": {
+        "alpha": 0.05,
+        "n_freq": 15,
+        "last_quality": 85
+      },
+      "edges": {
+        "block": 16,
+        "high": 90,
+        "low": 30,
+        "min_edge_pixels": 6
+      },
+      "cm_keypoint": {
+        "contrast": 0.01,
+        "detector": "sift",
+        "min_inliers": 4,
+        "min_shift": 20.0,
+        "mirror": true,
+        "ransac_px": 3.0,
+        "ratio": 0.6
+      },
+      "cm_block": {
+        "block": 16,
+        "min_std": 4.0,
+        "min_votes": 8,
+        "mirror": true,
+        "n_coef": 9,
+        "stride": 4,
+        "tol": 1.5
+      }
+    },
+    "protocol": "R",
+    "protocol_cfg": {
+      "factor": 0.75,
+      "jpeg_quality": 85,
+      "subsampling": "4:2:0"
+    },
+    "code_sha1": "a057618b304e63358cef8f4230428e82a6d73639",
+    "paths_sha1": "2cb589138f8c6e4f2844adc360104d88252edf36"
+  },
+  "A": {
+    "features": {
+      "ela": {
+        "block": 8,
+        "min_std": 2.0,
+        "quality": 85,
+        "texture_c": 16.0
+      },
+      "histogram": {
+        "bins": 16,
+        "min_std": 2.0,
+        "patch": 16,
+        "quality": 75
+      },
+      "noise": {
+        "block": 8,
+        "edge_quantile": 0.8,
+        "kernel": "immerkaer",
+        "min_pixels": 16,
+        "min_std": 2.0
+      },
+      "jpeg_ghost": {
+        "block": 16,
+        "min_std": 4.0
+      },
+      "dct_dq": {
+        "alpha": 0.05,
+        "n_freq": 15
+      },
+      "edges": {
+        "block": 16,
+        "high": 90,
+        "low": 30,
+        "min_edge_pixels": 6
+      },
+      "cm_keypoint": {
+        "contrast": 0.01,
+        "detector": "sift",
+        "min_inliers": 4,
+        "min_shift": 20.0,
+        "mirror": true,
+        "ransac_px": 3.0,
+        "ratio": 0.6
+      },
+      "cm_block": {
+        "block": 16,
+        "min_std": 4.0,
+        "min_votes": 8,
+        "mirror": true,
+        "n_coef": 9,
+        "stride": 4,
+        "tol": 1.5
+      }
+    },
+    "protocol": "A",
+    "protocol_cfg": null,
+    "code_sha1": "a057618b304e63358cef8f4230428e82a6d73639",
+    "paths_sha1": "2cb589138f8c6e4f2844adc360104d88252edf36"
+  }
+}
