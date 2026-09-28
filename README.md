@@ -13,11 +13,11 @@ It is evaluated under **format-controlled protocols**, because the dataset as re
 
 | What | Where |
 |---|---|
-| Final report (IEEE format, PDF) | [report/Patel_ImageForgeryDetection_report.pdf](report/Patel_ImageForgeryDetection_report.pdf) · source in [report/latex/](report/latex/) · rebuild with `python scripts/build_report.py` |
+| Final report (IEEE format, PDF) | [Download PDF (Release v2.0.0)](https://github.com/Smit2102/image-forgery-detection/releases/download/v2.0.0/Patel_ImageForgeryDetection_report.pdf) · source in [report/latex/](report/latex/) · rebuild with `python scripts/build_report.py` |
 | Slides (18, with speaker notes) | Online deck on claude.ai (private until shared; can be downloaded as PPTX or PDF) · slide source in [report/slides/](report/slides/) |
 | Walkthrough notebook (executed, with outputs) | [notebooks/project_walkthrough.ipynb](notebooks/project_walkthrough.ipynb): dataset, leak, every DIP technique step by step, detection, all results |
 | Live demo script | [report/DEMO_SCRIPT.md](report/DEMO_SCRIPT.md) |
-| Interactive tool | `.venv/bin/streamlit run app/Home.py` |
+| Interactive Forensic Tool | Streamlit HUD: `.venv/bin/streamlit run app/Home.py` |
 | Command-line detector | `.venv/bin/python detect.py <image>` |
 | Known issues and deviations | [report/KNOWN_ISSUES.md](report/KNOWN_ISSUES.md) |
 

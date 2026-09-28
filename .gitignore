@@ -25,6 +25,7 @@ data/synthetic/
 
 # LaTeX build products (the final PDF is report/Patel_ImageForgeryDetection_report.pdf)
 report/latex/main.pdf
+report/Patel_ImageForgeryDetection_report.pdf
 report/latex/*.log
 report/latex/*.aux
 report/latex/*.bbl
