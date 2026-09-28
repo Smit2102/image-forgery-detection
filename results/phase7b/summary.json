@@ -1,0 +1,1082 @@
+{
+  "robustness": [
+    {
+      "protocol": "R",
+      "family": "clean",
+      "condition": "clean",
+      "param": NaN,
+      "n": 1892,
+      "auc": 0.8053,
+      "balanced_accuracy@0.5": 0.7207,
+      "coverage": 0.518,
+      "accuracy_judged": 0.8582,
+      "detected_tampered": 0.2887,
+      "false_alarm_authentic": 0.0116,
+      "auc_ci": [
+        0.7780827061655538,
+        0.8326560417780785
+      ],
+      "loc_f1": 0.1975,
+      "loc_iou": 0.1277,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "jpeg",
+      "condition": "JPEG Q95",
+      "param": 95.0,
+      "n": 1892,
+      "auc": 0.7919,
+      "balanced_accuracy@0.5": 0.7112,
+      "coverage": 0.5534,
+      "accuracy_judged": 0.8453,
+      "detected_tampered": 0.2835,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.7631016920025679,
+        0.819754528074578
+      ],
+      "loc_f1": 0.1976,
+      "loc_iou": 0.128,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "jpeg",
+      "condition": "JPEG Q85",
+      "param": 85.0,
+      "n": 1892,
+      "auc": 0.7927,
+      "balanced_accuracy@0.5": 0.6968,
+      "coverage": 0.5629,
+      "accuracy_judged": 0.8432,
+      "detected_tampered": 0.2783,
+      "false_alarm_authentic": 0.0107,
+      "auc_ci": [
+        0.7650291627880623,
+        0.8218700645596164
+      ],
+      "loc_f1": 0.1931,
+      "loc_iou": 0.1247,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "jpeg",
+      "condition": "JPEG Q75",
+      "param": 75.0,
+      "n": 1892,
+      "auc": 0.7992,
+      "balanced_accuracy@0.5": 0.6983,
+      "coverage": 0.5497,
+      "accuracy_judged": 0.8567,
+      "detected_tampered": 0.2796,
+      "false_alarm_authentic": 0.0116,
+      "auc_ci": [
+        0.7727003708047865,
+        0.8258742719375932
+      ],
+      "loc_f1": 0.1926,
+      "loc_iou": 0.1249,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "jpeg",
+      "condition": "JPEG Q65",
+      "param": 65.0,
+      "n": 1892,
+      "auc": 0.7794,
+      "balanced_accuracy@0.5": 0.702,
+      "coverage": 0.5555,
+      "accuracy_judged": 0.8278,
+      "detected_tampered": 0.2835,
+      "false_alarm_authentic": 0.016,
+      "auc_ci": [
+        0.7480898067608918,
+        0.8080925313971187
+      ],
+      "loc_f1": 0.1936,
+      "loc_iou": 0.1255,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "jpeg",
+      "condition": "JPEG Q50",
+      "param": 50.0,
+      "n": 1892,
+      "auc": 0.781,
+      "balanced_accuracy@0.5": 0.6972,
+      "coverage": 0.537,
+      "accuracy_judged": 0.8356,
+      "detected_tampered": 0.277,
+      "false_alarm_authentic": 0.0116,
+      "auc_ci": [
+        0.7515215235639553,
+        0.8097263671999411
+      ],
+      "loc_f1": 0.1906,
+      "loc_iou": 0.1225,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "resize",
+      "condition": "resize x0.9",
+      "param": 0.9,
+      "n": 1892,
+      "auc": 0.7921,
+      "balanced_accuracy@0.5": 0.7131,
+      "coverage": 0.5159,
+      "accuracy_judged": 0.8494,
+      "detected_tampered": 0.2783,
+      "false_alarm_authentic": 0.0071,
+      "auc_ci": [
+        0.7643981071855805,
+        0.8178757289755725
+      ],
+      "loc_f1": 0.1928,
+      "loc_iou": 0.1247,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "resize",
+      "condition": "resize x0.75",
+      "param": 0.75,
+      "n": 1892,
+      "auc": 0.7676,
+      "balanced_accuracy@0.5": 0.6798,
+      "coverage": 0.5544,
+      "accuracy_judged": 0.8179,
+      "detected_tampered": 0.2185,
+      "false_alarm_authentic": 0.0036,
+      "auc_ci": [
+        0.7393914921903494,
+        0.7951689002282016
+      ],
+      "loc_f1": 0.1738,
+      "loc_iou": 0.1123,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "resize",
+      "condition": "resize x0.5",
+      "param": 0.5,
+      "n": 1892,
+      "auc": 0.6933,
+      "balanced_accuracy@0.5": 0.6154,
+      "coverage": 0.5534,
+      "accuracy_judged": 0.7421,
+      "detected_tampered": 0.1053,
+      "false_alarm_authentic": 0.0018,
+      "auc_ci": [
+        0.6603367674531734,
+        0.7269944079586697
+      ],
+      "loc_f1": 0.1264,
+      "loc_iou": 0.0822,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "blur",
+      "condition": "blur s=0.5",
+      "param": 0.5,
+      "n": 1892,
+      "auc": 0.8054,
+      "balanced_accuracy@0.5": 0.7294,
+      "coverage": 0.4778,
+      "accuracy_judged": 0.8639,
+      "detected_tampered": 0.3082,
+      "false_alarm_authentic": 0.0169,
+      "auc_ci": [
+        0.7758140881421218,
+        0.8318672379615326
+      ],
+      "loc_f1": 0.2072,
+      "loc_iou": 0.1339,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "blur",
+      "condition": "blur s=1.0",
+      "param": 1.0,
+      "n": 1892,
+      "auc": 0.7777,
+      "balanced_accuracy@0.5": 0.7123,
+      "coverage": 0.4556,
+      "accuracy_judged": 0.8492,
+      "detected_tampered": 0.3433,
+      "false_alarm_authentic": 0.0205,
+      "auc_ci": [
+        0.7521711903818911,
+        0.804843953187196
+      ],
+      "loc_f1": 0.2124,
+      "loc_iou": 0.1368,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "blur",
+      "condition": "blur s=1.5",
+      "param": 1.5,
+      "n": 1892,
+      "auc": 0.7645,
+      "balanced_accuracy@0.5": 0.681,
+      "coverage": 0.556,
+      "accuracy_judged": 0.826,
+      "detected_tampered": 0.3251,
+      "false_alarm_authentic": 0.0196,
+      "auc_ci": [
+        0.7382889693838429,
+        0.7928160467001122
+      ],
+      "loc_f1": 0.2009,
+      "loc_iou": 0.1305,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "noise",
+      "condition": "noise s=2",
+      "param": 2.0,
+      "n": 1892,
+      "auc": 0.8019,
+      "balanced_accuracy@0.5": 0.7252,
+      "coverage": 0.5116,
+      "accuracy_judged": 0.8554,
+      "detected_tampered": 0.2731,
+      "false_alarm_authentic": 0.0142,
+      "auc_ci": [
+        0.772864613527023,
+        0.8278512256281249
+      ],
+      "loc_f1": 0.1972,
+      "loc_iou": 0.1276,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "noise",
+      "condition": "noise s=5",
+      "param": 5.0,
+      "n": 1892,
+      "auc": 0.7998,
+      "balanced_accuracy@0.5": 0.7244,
+      "coverage": 0.5074,
+      "accuracy_judged": 0.8552,
+      "detected_tampered": 0.2705,
+      "false_alarm_authentic": 0.0098,
+      "auc_ci": [
+        0.7741752607079407,
+        0.8253976965938367
+      ],
+      "loc_f1": 0.1914,
+      "loc_iou": 0.1238,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "noise",
+      "condition": "noise s=10",
+      "param": 10.0,
+      "n": 1892,
+      "auc": 0.7936,
+      "balanced_accuracy@0.5": 0.7129,
+      "coverage": 0.4112,
+      "accuracy_judged": 0.8843,
+      "detected_tampered": 0.2718,
+      "false_alarm_authentic": 0.0116,
+      "auc_ci": [
+        0.7659004431722587,
+        0.8211734946788808
+      ],
+      "loc_f1": 0.1969,
+      "loc_iou": 0.1285,
+      "n_loc": 766
+    },
+    {
+      "protocol": "R",
+      "family": "social",
+      "condition": "social (x0.8 + JPEG Q70)",
+      "param": NaN,
+      "n": 1892,
+      "auc": 0.7617,
+      "balanced_accuracy@0.5": 0.6738,
+      "coverage": 0.5951,
+      "accuracy_judged": 0.8135,
+      "detected_tampered": 0.2341,
+      "false_alarm_authentic": 0.0053,
+      "auc_ci": [
+        0.7306769840960816,
+        0.7907068436527916
+      ],
+      "loc_f1": 0.176,
+      "loc_iou": 0.1139,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "clean",
+      "condition": "clean",
+      "param": NaN,
+      "n": 1892,
+      "auc": 0.9196,
+      "balanced_accuracy@0.5": 0.8451,
+      "coverage": 0.9572,
+      "accuracy_judged": 0.8691,
+      "detected_tampered": 0.7308,
+      "false_alarm_authentic": 0.0641,
+      "auc_ci": [
+        0.9051683751304517,
+        0.9347543908619006
+      ],
+      "loc_f1": 0.3081,
+      "loc_iou": 0.21,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "jpeg",
+      "condition": "JPEG Q95",
+      "param": 95.0,
+      "n": 1892,
+      "auc": 0.9002,
+      "balanced_accuracy@0.5": 0.8164,
+      "coverage": 0.9556,
+      "accuracy_judged": 0.8352,
+      "detected_tampered": 0.6203,
+      "false_alarm_authentic": 0.049,
+      "auc_ci": [
+        0.8835566411254165,
+        0.9163534926139537
+      ],
+      "loc_f1": 0.2942,
+      "loc_iou": 0.1994,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "jpeg",
+      "condition": "JPEG Q85",
+      "param": 85.0,
+      "n": 1892,
+      "auc": 0.9026,
+      "balanced_accuracy@0.5": 0.826,
+      "coverage": 0.972,
+      "accuracy_judged": 0.8472,
+      "detected_tampered": 0.6476,
+      "false_alarm_authentic": 0.041,
+      "auc_ci": [
+        0.8866683660311057,
+        0.9199217606080177
+      ],
+      "loc_f1": 0.3064,
+      "loc_iou": 0.2093,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "jpeg",
+      "condition": "JPEG Q75",
+      "param": 75.0,
+      "n": 1892,
+      "auc": 0.7394,
+      "balanced_accuracy@0.5": 0.6794,
+      "coverage": 0.9334,
+      "accuracy_judged": 0.7322,
+      "detected_tampered": 0.5501,
+      "false_alarm_authentic": 0.1532,
+      "auc_ci": [
+        0.7114707660078706,
+        0.7681269145231269
+      ],
+      "loc_f1": 0.2234,
+      "loc_iou": 0.1437,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "jpeg",
+      "condition": "JPEG Q65",
+      "param": 65.0,
+      "n": 1892,
+      "auc": 0.7722,
+      "balanced_accuracy@0.5": 0.7197,
+      "coverage": 0.9392,
+      "accuracy_judged": 0.7479,
+      "detected_tampered": 0.4798,
+      "false_alarm_authentic": 0.0962,
+      "auc_ci": [
+        0.740748064835903,
+        0.8043784536240158
+      ],
+      "loc_f1": 0.2259,
+      "loc_iou": 0.1457,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "jpeg",
+      "condition": "JPEG Q50",
+      "param": 50.0,
+      "n": 1892,
+      "auc": 0.7187,
+      "balanced_accuracy@0.5": 0.6392,
+      "coverage": 0.8969,
+      "accuracy_judged": 0.6977,
+      "detected_tampered": 0.5462,
+      "false_alarm_authentic": 0.211,
+      "auc_ci": [
+        0.6896424594780027,
+        0.7506782433158449
+      ],
+      "loc_f1": 0.2139,
+      "loc_iou": 0.1382,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "resize",
+      "condition": "resize x0.9",
+      "param": 0.9,
+      "n": 1892,
+      "auc": 0.767,
+      "balanced_accuracy@0.5": 0.7073,
+      "coverage": 0.9556,
+      "accuracy_judged": 0.7533,
+      "detected_tampered": 0.4512,
+      "false_alarm_authentic": 0.0641,
+      "auc_ci": [
+        0.7342053486667954,
+        0.801672394279094
+      ],
+      "loc_f1": 0.1995,
+      "loc_iou": 0.1311,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "resize",
+      "condition": "resize x0.75",
+      "param": 0.75,
+      "n": 1892,
+      "auc": 0.7466,
+      "balanced_accuracy@0.5": 0.6957,
+      "coverage": 0.9582,
+      "accuracy_judged": 0.7358,
+      "detected_tampered": 0.3758,
+      "false_alarm_authentic": 0.0463,
+      "auc_ci": [
+        0.718160598826221,
+        0.7786948945104825
+      ],
+      "loc_f1": 0.1698,
+      "loc_iou": 0.1115,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "resize",
+      "condition": "resize x0.5",
+      "param": 0.5,
+      "n": 1892,
+      "auc": 0.6984,
+      "balanced_accuracy@0.5": 0.6262,
+      "coverage": 0.953,
+      "accuracy_judged": 0.6855,
+      "detected_tampered": 0.2354,
+      "false_alarm_authentic": 0.0285,
+      "auc_ci": [
+        0.6675717011004475,
+        0.7266440310374223
+      ],
+      "loc_f1": 0.1208,
+      "loc_iou": 0.0795,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "blur",
+      "condition": "blur s=0.5",
+      "param": 0.5,
+      "n": 1892,
+      "auc": 0.8058,
+      "balanced_accuracy@0.5": 0.7364,
+      "coverage": 0.9572,
+      "accuracy_judged": 0.7769,
+      "detected_tampered": 0.5267,
+      "false_alarm_authentic": 0.0712,
+      "auc_ci": [
+        0.7779175229347187,
+        0.8329883079586096
+      ],
+      "loc_f1": 0.2301,
+      "loc_iou": 0.1526,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "blur",
+      "condition": "blur s=1.0",
+      "param": 1.0,
+      "n": 1892,
+      "auc": 0.7723,
+      "balanced_accuracy@0.5": 0.6963,
+      "coverage": 0.9773,
+      "accuracy_judged": 0.7404,
+      "detected_tampered": 0.4733,
+      "false_alarm_authentic": 0.0855,
+      "auc_ci": [
+        0.7398063776988572,
+        0.804150624800821
+      ],
+      "loc_f1": 0.2076,
+      "loc_iou": 0.1374,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "blur",
+      "condition": "blur s=1.5",
+      "param": 1.5,
+      "n": 1892,
+      "auc": 0.7538,
+      "balanced_accuracy@0.5": 0.6879,
+      "coverage": 0.9736,
+      "accuracy_judged": 0.7351,
+      "detected_tampered": 0.4044,
+      "false_alarm_authentic": 0.0454,
+      "auc_ci": [
+        0.7230463932467702,
+        0.7880056980754124
+      ],
+      "loc_f1": 0.2026,
+      "loc_iou": 0.1353,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "noise",
+      "condition": "noise s=2",
+      "param": 2.0,
+      "n": 1892,
+      "auc": 0.8204,
+      "balanced_accuracy@0.5": 0.7556,
+      "coverage": 0.9593,
+      "accuracy_judged": 0.789,
+      "detected_tampered": 0.5423,
+      "false_alarm_authentic": 0.0703,
+      "auc_ci": [
+        0.7911786356317722,
+        0.8496205750747499
+      ],
+      "loc_f1": 0.2548,
+      "loc_iou": 0.1715,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "noise",
+      "condition": "noise s=5",
+      "param": 5.0,
+      "n": 1892,
+      "auc": 0.8021,
+      "balanced_accuracy@0.5": 0.7323,
+      "coverage": 0.9619,
+      "accuracy_judged": 0.75,
+      "detected_tampered": 0.4369,
+      "false_alarm_authentic": 0.0588,
+      "auc_ci": [
+        0.7768709547455995,
+        0.8279523596831699
+      ],
+      "loc_f1": 0.2155,
+      "loc_iou": 0.1433,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "noise",
+      "condition": "noise s=10",
+      "param": 10.0,
+      "n": 1892,
+      "auc": 0.8029,
+      "balanced_accuracy@0.5": 0.7246,
+      "coverage": 0.9265,
+      "accuracy_judged": 0.7524,
+      "detected_tampered": 0.433,
+      "false_alarm_authentic": 0.0695,
+      "auc_ci": [
+        0.7792451595212325,
+        0.8287519931127899
+      ],
+      "loc_f1": 0.1812,
+      "loc_iou": 0.1169,
+      "n_loc": 766
+    },
+    {
+      "protocol": "B",
+      "family": "social",
+      "condition": "social (x0.8 + JPEG Q70)",
+      "param": NaN,
+      "n": 1892,
+      "auc": 0.7211,
+      "balanced_accuracy@0.5": 0.6704,
+      "coverage": 0.9556,
+      "accuracy_judged": 0.7207,
+      "detected_tampered": 0.3693,
+      "false_alarm_authentic": 0.0597,
+      "auc_ci": [
+        0.6912361130343536,
+        0.7555303450700718
+      ],
+      "loc_f1": 0.1849,
+      "loc_iou": 0.118,
+      "n_loc": 766
+    }
+  ],
+  "synthetic": [
+    {
+      "protocol": "R",
+      "version": "as made",
+      "kind": "splice (hard edge)",
+      "n": 360,
+      "auc": 0.5688,
+      "balanced_accuracy@0.5": 0.5125,
+      "coverage": 0.5444,
+      "accuracy_judged": 0.6939,
+      "detected_tampered": 0.0083,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.5084268470849312,
+        0.6285126381012246
+      ],
+      "loc_f1": 0.1077,
+      "loc_iou": 0.0694,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "R",
+      "version": "as made",
+      "kind": "splice (seamless)",
+      "n": 360,
+      "auc": 0.5519,
+      "balanced_accuracy@0.5": 0.5083,
+      "coverage": 0.5556,
+      "accuracy_judged": 0.685,
+      "detected_tampered": 0.0167,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.48749630196965843,
+        0.6094576760459918
+      ],
+      "loc_f1": 0.0794,
+      "loc_iou": 0.0477,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "R",
+      "version": "as made",
+      "kind": "copy-move (shift)",
+      "n": 360,
+      "auc": 0.885,
+      "balanced_accuracy@0.5": 0.85,
+      "coverage": 0.6694,
+      "accuracy_judged": 0.9212,
+      "detected_tampered": 0.725,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.8297384065952456,
+        0.9262076568278118
+      ],
+      "loc_f1": 0.3765,
+      "loc_iou": 0.247,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.5968
+    },
+    {
+      "protocol": "R",
+      "version": "as made",
+      "kind": "copy-move (rotate+scale)",
+      "n": 360,
+      "auc": 0.8958,
+      "balanced_accuracy@0.5": 0.8458,
+      "coverage": 0.6278,
+      "accuracy_judged": 0.9292,
+      "detected_tampered": 0.625,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.8565017652574112,
+        0.9340064991918102
+      ],
+      "loc_f1": 0.3596,
+      "loc_iou": 0.2365,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.571
+    },
+    {
+      "protocol": "R",
+      "version": "as made",
+      "kind": "all",
+      "n": 720,
+      "auc": 0.7254,
+      "balanced_accuracy@0.5": 0.6792,
+      "coverage": 0.6236,
+      "accuracy_judged": 0.6682,
+      "detected_tampered": 0.3438,
+      "false_alarm_authentic": 0.0125,
+      "auc_ci": [
+        0.6902037191232278,
+        0.7602728225711807
+      ],
+      "loc_f1": 0.2308,
+      "loc_iou": 0.1501,
+      "n_loc": 480,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "R",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "splice (hard edge)",
+      "n": 360,
+      "auc": 0.5637,
+      "balanced_accuracy@0.5": 0.4917,
+      "coverage": 0.6417,
+      "accuracy_judged": 0.697,
+      "detected_tampered": 0.0,
+      "false_alarm_authentic": 0.0083,
+      "auc_ci": [
+        0.5023746512126822,
+        0.6221878391854667
+      ],
+      "loc_f1": 0.068,
+      "loc_iou": 0.0421,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "R",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "splice (seamless)",
+      "n": 360,
+      "auc": 0.5008,
+      "balanced_accuracy@0.5": 0.4792,
+      "coverage": 0.6694,
+      "accuracy_judged": 0.668,
+      "detected_tampered": 0.0,
+      "false_alarm_authentic": 0.0083,
+      "auc_ci": [
+        0.4363617987276176,
+        0.5572610613006587
+      ],
+      "loc_f1": 0.0427,
+      "loc_iou": 0.0254,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "R",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "copy-move (shift)",
+      "n": 360,
+      "auc": 0.8611,
+      "balanced_accuracy@0.5": 0.8125,
+      "coverage": 0.7111,
+      "accuracy_judged": 0.9023,
+      "detected_tampered": 0.5833,
+      "false_alarm_authentic": 0.0083,
+      "auc_ci": [
+        0.811201490914246,
+        0.9061408892176475
+      ],
+      "loc_f1": 0.3231,
+      "loc_iou": 0.2107,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.5114
+    },
+    {
+      "protocol": "R",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "copy-move (rotate+scale)",
+      "n": 360,
+      "auc": 0.8476,
+      "balanced_accuracy@0.5": 0.7958,
+      "coverage": 0.6778,
+      "accuracy_judged": 0.9057,
+      "detected_tampered": 0.5,
+      "false_alarm_authentic": 0.0083,
+      "auc_ci": [
+        0.8000445968013914,
+        0.8905724108731231
+      ],
+      "loc_f1": 0.2946,
+      "loc_iou": 0.1918,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.4722
+    },
+    {
+      "protocol": "R",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "all",
+      "n": 720,
+      "auc": 0.6933,
+      "balanced_accuracy@0.5": 0.6448,
+      "coverage": 0.6708,
+      "accuracy_judged": 0.6025,
+      "detected_tampered": 0.2708,
+      "false_alarm_authentic": 0.0083,
+      "auc_ci": [
+        0.6523306631679006,
+        0.729261150063373
+      ],
+      "loc_f1": 0.1821,
+      "loc_iou": 0.1175,
+      "n_loc": 480,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "as made",
+      "kind": "splice (hard edge)",
+      "n": 360,
+      "auc": 0.5701,
+      "balanced_accuracy@0.5": 0.5125,
+      "coverage": 0.9806,
+      "accuracy_judged": 0.6346,
+      "detected_tampered": 0.0667,
+      "false_alarm_authentic": 0.0875,
+      "auc_ci": [
+        0.5167534559249728,
+        0.6337878754930889
+      ],
+      "loc_f1": 0.1581,
+      "loc_iou": 0.1053,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "as made",
+      "kind": "splice (seamless)",
+      "n": 360,
+      "auc": 0.5506,
+      "balanced_accuracy@0.5": 0.5167,
+      "coverage": 0.9722,
+      "accuracy_judged": 0.6429,
+      "detected_tampered": 0.075,
+      "false_alarm_authentic": 0.0875,
+      "auc_ci": [
+        0.4889442810578588,
+        0.6092423838261487
+      ],
+      "loc_f1": 0.2251,
+      "loc_iou": 0.1576,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "as made",
+      "kind": "copy-move (shift)",
+      "n": 360,
+      "auc": 0.9367,
+      "balanced_accuracy@0.5": 0.8875,
+      "coverage": 0.9833,
+      "accuracy_judged": 0.9011,
+      "detected_tampered": 0.8583,
+      "false_alarm_authentic": 0.0875,
+      "auc_ci": [
+        0.899327920751634,
+        0.9678163958708836
+      ],
+      "loc_f1": 0.4966,
+      "loc_iou": 0.3465,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.7026
+    },
+    {
+      "protocol": "B",
+      "version": "as made",
+      "kind": "copy-move (rotate+scale)",
+      "n": 360,
+      "auc": 0.9078,
+      "balanced_accuracy@0.5": 0.8583,
+      "coverage": 0.9833,
+      "accuracy_judged": 0.8729,
+      "detected_tampered": 0.775,
+      "false_alarm_authentic": 0.0875,
+      "auc_ci": [
+        0.8669977708838551,
+        0.9415463476990716
+      ],
+      "loc_f1": 0.4844,
+      "loc_iou": 0.3412,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.6531
+    },
+    {
+      "protocol": "B",
+      "version": "as made",
+      "kind": "all",
+      "n": 720,
+      "auc": 0.7413,
+      "balanced_accuracy@0.5": 0.6938,
+      "coverage": 0.9722,
+      "accuracy_judged": 0.6129,
+      "detected_tampered": 0.4438,
+      "false_alarm_authentic": 0.0875,
+      "auc_ci": [
+        0.7090260131045746,
+        0.7755473611195214
+      ],
+      "loc_f1": 0.3411,
+      "loc_iou": 0.2377,
+      "n_loc": 480,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "splice (hard edge)",
+      "n": 360,
+      "auc": 0.4939,
+      "balanced_accuracy@0.5": 0.4854,
+      "coverage": 0.9583,
+      "accuracy_judged": 0.6406,
+      "detected_tampered": 0.0417,
+      "false_alarm_authentic": 0.05,
+      "auc_ci": [
+        0.4320536725660588,
+        0.5561300309279982
+      ],
+      "loc_f1": 0.0828,
+      "loc_iou": 0.0498,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "splice (seamless)",
+      "n": 360,
+      "auc": 0.5,
+      "balanced_accuracy@0.5": 0.4812,
+      "coverage": 0.9583,
+      "accuracy_judged": 0.6377,
+      "detected_tampered": 0.0333,
+      "false_alarm_authentic": 0.05,
+      "auc_ci": [
+        0.4375944700291898,
+        0.5613418646634055
+      ],
+      "loc_f1": 0.1266,
+      "loc_iou": 0.0787,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": NaN
+    },
+    {
+      "protocol": "B",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "copy-move (shift)",
+      "n": 360,
+      "auc": 0.9018,
+      "balanced_accuracy@0.5": 0.8229,
+      "coverage": 0.9639,
+      "accuracy_judged": 0.8905,
+      "detected_tampered": 0.775,
+      "false_alarm_authentic": 0.05,
+      "auc_ci": [
+        0.8626072964302778,
+        0.9377432553316701
+      ],
+      "loc_f1": 0.3413,
+      "loc_iou": 0.2205,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.5344
+    },
+    {
+      "protocol": "B",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "copy-move (rotate+scale)",
+      "n": 360,
+      "auc": 0.8519,
+      "balanced_accuracy@0.5": 0.8104,
+      "coverage": 0.9583,
+      "accuracy_judged": 0.8841,
+      "detected_tampered": 0.7417,
+      "false_alarm_authentic": 0.05,
+      "auc_ci": [
+        0.7951199903177841,
+        0.8989931107866987
+      ],
+      "loc_f1": 0.3376,
+      "loc_iou": 0.2177,
+      "n_loc": 120,
+      "loc_f1_source_and_copy": 0.5184
+    },
+    {
+      "protocol": "B",
+      "version": "social (x0.8 + JPEG Q70)",
+      "kind": "all",
+      "n": 720,
+      "auc": 0.6869,
+      "balanced_accuracy@0.5": 0.65,
+      "coverage": 0.9694,
+      "accuracy_judged": 0.5831,
+      "detected_tampered": 0.3979,
+      "false_alarm_authentic": 0.05,
+      "auc_ci": [
+        0.6529174430614476,
+        0.7210993470244093
+      ],
+      "loc_f1": 0.2221,
+      "loc_iou": 0.1417,
+      "n_loc": 480,
+      "loc_f1_source_and_copy": NaN
+    }
+  ],
+  "external": [
+    {
+      "protocol": "R",
+      "dataset": "MICC-F220",
+      "n": 220,
+      "auc": 0.9718,
+      "balanced_accuracy@0.5": 0.6318,
+      "coverage": 0.4773,
+      "accuracy_judged": 0.9429,
+      "detected_tampered": 0.8636,
+      "false_alarm_authentic": 0.0545,
+      "auc_ci": [
+        0.9325969008264463,
+        0.9983664772727273
+      ],
+      "share_with_cm_inliers_tampered": 0.9727,
+      "share_with_cm_inliers_original": 0.2273
+    },
+    {
+      "protocol": "B",
+      "dataset": "MICC-F220",
+      "n": 220,
+      "auc": 0.9025,
+      "balanced_accuracy@0.5": 0.6955,
+      "coverage": 0.8864,
+      "accuracy_judged": 0.7897,
+      "detected_tampered": 0.8818,
+      "false_alarm_authentic": 0.2818,
+      "auc_ci": [
+        0.7670818181818182,
+        0.9840769480519481
+      ],
+      "share_with_cm_inliers_tampered": 0.9091,
+      "share_with_cm_inliers_original": 0.3182
+    }
+  ]
+}
