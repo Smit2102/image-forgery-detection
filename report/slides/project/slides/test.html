@@ -1,0 +1,19 @@
+<section id="test" data-transition="fade" style="background:#16213E; color:#F6F4EF; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-family:'Source Serif 4', Georgia, serif; font-size:64px; font-weight:600; color:#F6F4EF">Test set, evaluated once: the result holds</h2>
+<div style="display:flex; gap:56px; align-items:center">
+<div style="flex:1; display:flex; flex-direction:column; gap:28px">
+<div style="display:flex; flex-direction:column; gap:4px">
+<p style="font-family:'Source Serif 4', Georgia, serif; font-size:120px; font-weight:600; line-height:1; color:#E8894F">0.805</p>
+<p style="font-size:30px; color:#C9D3E3">AUC under R, 95% CI [0.779, 0.831], against 0.712 for the shortcuts</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:4px">
+<p style="font-family:'Source Serif 4', Georgia, serif; font-size:72px; font-weight:600; line-height:1; color:#F6F4EF">+0.103</p>
+<p style="font-size:30px; color:#C9D3E3">added over the shortcuts, CI [0.076, 0.129]</p>
+</div>
+<p style="font-size:30px; color:#C9D3E3">B: 0.920 · A: shortcuts alone reach 1.000. Every dev estimate lies inside its test CI.</p>
+</div>
+<img src="/_blob/f2c31ab7afc19bfb659f03d84fdbbf3a" alt="Test ROC curves under protocol R for forensic, shortcut and combined features" style="width:640px; height:584px; object-fit:contain; background:#F6F4EF; border-radius:12px">
+</div>
+<p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#9AA6BA">Smit Patel · EDS 6364 · 9 · 1,892 held-out images, frozen before any model was trained</p>
+<aside>The test split was frozen in Phase 2 and used exactly once for this headline run, after dry runs and a preflight check; every use is logged with file fingerprints. All test AUCs are within 0.02 of the development estimates, so there is no sign of overfitting to the development set.</aside>
+</section>

@@ -1,0 +1,10 @@
+<section id="robustness" data-transition="fade" style="background:#F6F4EF; color:#3F4756; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+<h2 style="font-family:'Source Serif 4', Georgia, serif; font-size:64px; font-weight:600; color:#16213E">Robust to re-saving; B is fragile</h2>
+<img src="/_blob/0149003586165a44831abae035eda741" alt="Image AUC and pixel F1 of R and B under JPEG, resize, blur, noise and social-upload degradations" style="width:1664px; height:500px; object-fit:contain; background:#FFFDF8; border-radius:12px">
+<div style="display:flex; gap:32px">
+<p style="flex:1; font-size:28px"><b style="color:#2F6DA8">R</b> stays ≥0.78 down to JPEG Q50 and noise σ=10; a social-media style upload costs 0.04 (0.805 → 0.762).</p>
+<p style="flex:1; font-size:28px"><b style="color:#B8521F">B</b> drops from 0.920 to 0.739 after one JPEG Q75 re-save, below R. Its extra signal is compression history.</p>
+</div>
+<p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#6B7280">Smit Patel · EDS 6364 · 13 · frozen models, test images degraded before the protocol</p>
+<aside>Strong downscaling (×0.5) is R's main weakness: AUC 0.693. For photos that have been shared online, the strict protocol is the realistic setting, which also supports choosing R as the main protocol.</aside>
+</section>

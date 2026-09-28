@@ -1,0 +1,25 @@
+<section id="dataset" data-transition="fade" style="background:#F6F4EF; color:#3F4756; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-family:'Source Serif 4', Georgia, serif; font-size:64px; font-weight:600; color:#16213E">CASIA v2.0 at a glance</h2>
+<div style="display:flex; gap:32px">
+<div style="flex:1; display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border:1px solid #DDD6C8; border-radius:16px; padding:32px">
+<p style="font-family:'Source Serif 4', Georgia, serif; font-size:72px; font-weight:600; color:#16213E">12,614</p>
+<p style="font-size:28px">images: 7,491 authentic, 5,123 tampered</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border:1px solid #DDD6C8; border-radius:16px; padding:32px">
+<p style="font-family:'Source Serif 4', Georgia, serif; font-size:72px; font-weight:600; color:#16213E">3.1%</p>
+<p style="font-size:28px">median tampered area: small regions</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border:1px solid #DDD6C8; border-radius:16px; padding:32px">
+<p style="font-family:'Source Serif 4', Georgia, serif; font-size:72px; font-weight:600; color:#16213E">5,104</p>
+<p style="font-size:28px">usable masks after re-matching 142 misnamed ones</p>
+</div>
+</div>
+<table style="font-size:30px; color:#3F4756">
+<tr><th style="width:28%; text-align:left">Class (corrected type)</th><th style="width:18%; text-align:right">Images</th><th style="width:18%; text-align:right">JPEG</th><th style="width:18%; text-align:right">TIFF</th><th style="width:18%; text-align:right">BMP</th></tr>
+<tr><td>Authentic</td><td style="text-align:right">7,491</td><td style="text-align:right">7,437</td><td style="text-align:right">0</td><td style="text-align:right">54</td></tr>
+<tr style="background:#ECE8DF"><td>Copy-move</td><td style="text-align:right">3,295</td><td style="text-align:right">967</td><td style="text-align:right"><b>2,328</b></td><td style="text-align:right">0</td></tr>
+<tr><td>Splicing</td><td style="text-align:right">1,828</td><td style="text-align:right">1,097</td><td style="text-align:right"><b>731</b></td><td style="text-align:right">0</td></tr>
+</table>
+<p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#6B7280">Smit Patel · EDS 6364 · 4</p>
+<aside>The audit corrected 99 forgery-type labels by majority vote, re-matched 142 misnamed masks by their tamper id, and excluded 19 unusable masks from pixel scoring. Look at the TIFF column: authentic images are never TIFF, but most tampered images are. That is the first sign of trouble.</aside>
+</section>

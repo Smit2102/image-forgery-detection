@@ -1,0 +1,18 @@
+<section id="errors" data-transition="fade" style="background:#ECE8DF; color:#3F4756; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-family:'Source Serif 4', Georgia, serif; font-size:64px; font-weight:600; color:#16213E">What it gets wrong, and why</h2>
+<div style="display:flex; gap:40px">
+<div style="flex:1; display:flex; flex-direction:column; gap:20px; background:#FFFDF8; border:1px solid #DDD6C8; border-radius:16px; padding:40px">
+<h3 style="font-size:44px; font-weight:600; color:#B8521F">126 missed forgeries</h3>
+<p style="font-size:30px"><b>Splicing</b>: 60% of misses vs 3% of detections (22×).</p>
+<p style="font-size:30px"><b>Few keypoints</b>: lowest tercile 49% vs 21% (2.4×).</p>
+<p style="font-size:30px">Large regions are found more reliably.</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:20px; background:#FFFDF8; border:1px solid #DDD6C8; border-radius:16px; padding:40px">
+<h3 style="font-size:44px; font-weight:600; color:#2F6DA8">13 false alarms</h3>
+<p style="font-size:30px"><b>All 13</b> had copy-move keypoint matches surviving RANSAC; none of the 619 correct authentic verdicts had any.</p>
+<p style="font-size:30px">Mostly self-similar scenes: colonnades, lattices, repeated patterns.</p>
+</div>
+</div>
+<p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#6B7280">Smit Patel · EDS 6364 · 12 · Fisher tests with Holm correction, protocol R</p>
+<aside>Splicing leaves no internal duplicate, and after resampling its compression and noise traces are weak. Genuinely repeated structure looks like a copy-move, a known weakness of copy-move detection. These two failure modes are the clearest directions for future work.</aside>
+</section>
