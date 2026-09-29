@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -441,3 +442,15 @@ def heat(m: np.ndarray) -> np.ndarray:
 
 def result_file(rel: str) -> Path:
     return resolve(rel)
+
+
+def output_file(name: str) -> Path:
+    """A final figure or table in outputs/ (made by scripts/make_outputs.py; part of the repository)."""
+    return resolve("outputs") / name
+
+
+@st.cache_data
+def metrics() -> dict:
+    """All headline numbers (outputs/metrics.json); empty if the file is missing."""
+    f = output_file("metrics.json")
+    return json.loads(f.read_text()) if f.exists() else {}

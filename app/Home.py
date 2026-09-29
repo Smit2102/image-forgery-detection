@@ -21,24 +21,21 @@ except ImportError:
 if __name__ == "__main__" and not runtime.exists():
     sys.exit(subprocess.call([sys.executable, "-m", "streamlit", "run", __file__, *sys.argv[1:]]))
 
-from common import page_setup, render_kpi, result_file
+from common import metrics, page_setup, render_kpi
 
 page_setup("Home", "🏠")
 
 
 def headline() -> dict:
-    """Headline numbers from the saved test outputs (protocol R); None where a file is missing."""
-    import pandas as pd
-    out = {}
+    """Headline numbers of the one-time test evaluation (protocol R), from outputs/metrics.json."""
+    m, out = metrics(), {}
     try:
-        t = pd.read_csv(result_file("results/phase7/run_1/test_classification.csv"))
-        out["auc"] = t[(t.protocol == "R") & (t.feature_set == "forensic_all") & (t.model == "rf")].auc.iloc[0]
-        rb = pd.read_csv(result_file("results/phase7b/robustness.csv"))
-        clean = rb[(rb.protocol == "R") & (rb.condition == "clean")].iloc[0]
-        out["acc"], out["cov"] = clean.accuracy_judged, clean.coverage
-        out["f1"] = pd.read_csv(result_file("results/phase7/run_1/localisation_per_image_R.csv")).f1.mean()
-        ex = json.loads(result_file("results/phase7b/summary.json").read_text())["external"]
-        out["micc"] = next(r for r in ex if r["protocol"] == "R")["auc"]
+        out["auc"] = next(r["auc"] for r in m["test_classification"]
+                          if r["protocol"] == "R" and r["feature_set"] == "forensic_all" and r["model"] == "rf")
+        out["acc"] = m["test_deployed"]["R"]["accuracy_judged"]
+        out["cov"] = m["test_deployed"]["R"]["coverage"]
+        out["f1"] = m["test_localisation"]["R"]["f1"]
+        out["micc"] = next(r["auc"] for r in m["micc_f220"] if r["protocol"] == "R")
     except Exception:
         pass
     return out

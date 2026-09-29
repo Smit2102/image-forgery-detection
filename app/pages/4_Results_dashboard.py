@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import json
-
 import pandas as pd
 import streamlit as st
 
-from common import page_setup, result_file
+from common import metrics, output_file, page_setup
 
 page_setup("Results dashboard", "📊")
 
@@ -26,17 +24,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-def csv(rel: str) -> pd.DataFrame | None:
-    f = result_file(rel)
-    return pd.read_csv(f) if f.exists() else None
+M = metrics()
+if not M:
+    st.error("outputs/metrics.json not found: run `python scripts/make_outputs.py` after the pipeline.")
+    st.stop()
 
 
-def fig(rel: str, caption: str = ""):
-    f = result_file(rel)
+def table(key: str) -> pd.DataFrame:
+    return pd.DataFrame(M.get(key, []))
+
+
+def fig(name: str, caption: str = ""):
+    f = output_file(name)
     if f.exists():
         st.image(str(f), caption=caption, width="stretch")
     else:
-        st.info(f"Artifact {rel} not found in results directory.")
+        st.info(f"outputs/{name} not found (run scripts/make_outputs.py).")
 
 
 def fmt_ci(v, lo, hi) -> str:
@@ -62,15 +65,9 @@ with tabs[0]:
     </div>
     """, unsafe_allow_html=True)
     
-    lk = csv("results/phase2/leakage_summary.csv")
-    if lk is not None:
-        piv = lk.pivot_table(index="feature_set", columns="protocol", values="balanced_accuracy_mean").round(3)
-        main = [c for c in ("A", "C", "B85", "R85") if c in piv]
-        st.dataframe(piv[main], width="stretch")
-        st.caption("Protocol Definitions · A: As released · C: JPEG only · B85: Re-saved JPEG Q85 · R85: Resampled x0.75 + JPEG Q85 (Strict Standard).")
-        with st.expander("Explore all protocol variants (quality sensitivity, subsets)"):
-            st.dataframe(piv, width="stretch")
-    fig("results/phase2/fig_leakage.png")
+    st.dataframe(pd.DataFrame(M["leakage_balanced_accuracy"]).T.round(3).rename_axis("feature_set"), width="stretch")
+    st.caption("Protocol Definitions · A: As released · C: JPEG only · B85: Re-saved JPEG Q85 · R85: Resampled x0.75 + JPEG Q85 (Strict Standard).")
+    fig("10_leakage_shortcuts.png")
 
 with tabs[1]:
     st.markdown("""
@@ -82,22 +79,18 @@ with tabs[1]:
     </div>
     """, unsafe_allow_html=True)
     
-    r = csv("results/phase5/results.csv")
-    if r is not None:
-        st.dataframe(r.pivot_table(index=["feature_set"], columns=["protocol", "model"], values="roc_auc_mean")
-                     .round(3), width="stretch")
-    av = csv("results/phase5/added_value.csv")
-    if av is not None:
-        av["ΔAUC [95 % CI]"] = [fmt_ci(a, b, c) for a, b, c in zip(av.delta_auc, av.ci_low, av.ci_high)]
-        st.dataframe(av[["protocol", "model", "comparison", "ΔAUC [95 % CI]"]], hide_index=True,
-                     width="stretch")
+    r = table("dev_cv_auc")
+    st.dataframe(r.pivot_table(index=["feature_set"], columns=["protocol", "model"], values="roc_auc_mean")
+                 .round(3), width="stretch")
+    av = table("dev_added_value")
+    av["ΔAUC [95 % CI]"] = [fmt_ci(a, b, c) for a, b, c in zip(av.delta_auc, av.ci_low, av.ci_high)]
+    st.dataframe(av[["protocol", "model", "comparison", "ΔAUC [95 % CI]"]], hide_index=True, width="stretch")
     c1, c2 = st.columns(2)
     with c1:
-        fig("results/phase5/fig_roc_R.png", "Out-of-fold ROC (Strict Protocol R)")
-        fig("results/phase5/fig_calibration_R.png", "Isotonic Calibration & Calibrated Uncertain Band")
+        fig("13_calibration.png", "Isotonic Calibration & Calibrated Uncertain Band")
     with c2:
-        fig("results/phase5/fig_shap_R.png", "Global SHAP Module Feature Importance")
-        fig("results/phase5/fig_ablation.png", "Leave-One-Module-Out Ablation Study")
+        fig("11_shap_importance.png", "Global SHAP Module Feature Importance")
+        fig("12_module_ablation.png", "Leave-One-Module-Out Ablation Study")
 
 with tabs[2]:
     st.markdown("""
@@ -109,13 +102,15 @@ with tabs[2]:
     </div>
     """, unsafe_allow_html=True)
     
-    for P in ("R", "B"):
-        m = csv(f"results/phase6/methods_{P}.csv")
-        if m is not None:
-            st.markdown(f"**Protocol {P} Performance**")
-            st.dataframe(m[["method", "f1", "iou", "mcc", "pixel_auc", "authentic_any_region"]].round(3),
-                         hide_index=True, width="stretch")
-    fig("results/phase6/fig_examples_R.png", "Localization Examples (Protocol R)")
+    rows = []
+    for P, L in M["test_localisation"].items():
+        rows.append({"protocol": P, "pixel F1": L["f1"], "F1 95% CI": f"[{L['f1_ci'][0]:.3f}, {L['f1_ci'][1]:.3f}]",
+                     "IoU": L["iou"], "MCC": L["mcc"], "pixel AUC": L["pixel_auc"],
+                     **{f"F1 area {k}": v for k, v in L["f1_by_area"].items()},
+                     **{f"F1 {k}": v for k, v in L["f1_by_type"].items()}})
+    st.markdown("**Test-set localisation** (766 tampered test images with a valid mask; deployed localiser)")
+    st.dataframe(pd.DataFrame(rows).round(3), hide_index=True, width="stretch")
+    fig("14_localisation_examples.png", "Localization Examples on validation images (Protocol R)")
 
 with tabs[3]:
     st.markdown("""
@@ -127,20 +122,19 @@ with tabs[3]:
     </div>
     """, unsafe_allow_html=True)
     
-    t = csv("results/phase7/run_1/test_classification.csv")
-    if t is not None:
-        t["AUC [95 % CI]"] = [fmt_ci(a, b, c) for a, b, c in zip(t.auc, t.auc_ci_low, t.auc_ci_high)]
-        st.dataframe(t[["protocol", "feature_set", "model", "AUC [95 % CI]", "balanced_accuracy"]].round(3),
-                     hide_index=True, width="stretch")
+    t = table("test_classification")
+    t["AUC [95 % CI]"] = [fmt_ci(a, b, c) for a, b, c in zip(t.auc, t.auc_ci_low, t.auc_ci_high)]
+    st.dataframe(t[["protocol", "feature_set", "model", "AUC [95 % CI]", "accuracy", "precision", "recall", "f1",
+                    "balanced_accuracy"]].round(3), hide_index=True, width="stretch")
+    st.caption("Accuracy, precision, recall and F1 at threshold 0.5 of the uncalibrated model.")
+    cm = pd.DataFrame(M["test_deployed"]["R"]["confusion_matrix"]).T
+    st.markdown("**Deployed calibrated detector (protocol R): verdicts vs truth**")
+    st.dataframe(cm.rename_axis("true class"), width="stretch")
     c1, c2 = st.columns(2)
     with c1:
-        fig("results/phase7/run_1/fig_roc_test_R.png", "Final Test ROC (Protocol R)")
+        fig("15_test_roc.png", "Final Test ROC (Protocol R)")
     with c2:
-        fig("results/phase7/run_1/fig_failures_R.png", "Failure Modes: Missed Forgeries & False Alarms")
-    f = result_file("results/phase7/run_1/test_results.md")
-    if f.exists():
-        with st.expander("Full Verified Test Report (Markdown Document)"):
-            st.markdown(f.read_text())
+        fig("16_error_analysis.png", "Failure Modes: Missed Forgeries & False Alarms")
 
 with tabs[4]:
     st.markdown("""
@@ -152,22 +146,19 @@ with tabs[4]:
     </div>
     """, unsafe_allow_html=True)
     
-    rb = csv("results/phase7b/robustness.csv")
-    if rb is not None:
-        st.dataframe(rb.pivot_table(index="condition", columns="protocol", values=["auc", "loc_f1"], sort=False)
-                     .round(3), width="stretch")
-    fig("results/phase7b/fig_robustness.png")
-    ex = csv("results/phase7b/external.csv")
-    if ex is not None:
-        st.markdown("**Unseen Benchmark: MICC-F220 (110 forgeries, 110 originals)**")
-        st.dataframe(ex[["protocol", "auc", "auc_ci", "coverage", "accuracy_judged", "false_alarm_authentic"]]
-                     .round(3), hide_index=True, width="stretch")
-    syn = csv("results/phase7b/synthetic.csv")
-    if syn is not None:
-        with st.expander("Synthetic Forgeries with Ground Truth"):
-            st.dataframe(syn[["protocol", "version", "kind", "auc", "loc_f1"]].round(3), hide_index=True,
-                         width="stretch")
-            fig("results/phase7b/fig_synthetic_examples.png")
+    rb = table("robustness")
+    st.dataframe(rb.pivot_table(index="condition", columns="protocol", values=["auc", "loc_f1"], sort=False)
+                 .round(3), width="stretch")
+    fig("17_robustness.png")
+    ex = table("micc_f220")
+    st.markdown("**Unseen Benchmark: MICC-F220 (110 forgeries from 11 scenes, 110 originals)**")
+    st.dataframe(ex[["protocol", "auc", "auc_ci", "coverage", "accuracy_judged", "false_alarm_authentic"]]
+                 .round(3), hide_index=True, width="stretch")
+    syn = table("synthetic")
+    with st.expander("Synthetic Forgeries with Ground Truth"):
+        st.dataframe(syn[["protocol", "version", "kind", "auc", "loc_f1"]].round(3), hide_index=True,
+                     width="stretch")
+        fig("18_synthetic_forgeries.png")
 
 with tabs[5]:
     st.markdown("""
@@ -179,29 +170,18 @@ with tabs[5]:
     </div>
     """, unsafe_allow_html=True)
     
-    s = result_file("results/phase8/summary.json")
-    if s.exists():
-        d = json.loads(s.read_text())
-        rows = []
-        for P, r in d["protocols"].items():
-            a = r["auc"]
-            rows.append({"protocol": P, "CNN": fmt_ci(a["cnn"]["auc"], *a["cnn"]["ci"]),
-                         "classical": fmt_ci(a["classical"]["auc"], *a["classical"]["ci"]),
-                         "CNN − classical": fmt_ci(r["cnn_minus_classical"]["delta_auc"],
-                                                   r["cnn_minus_classical"]["ci_low"],
-                                                   r["cnn_minus_classical"]["ci_high"]),
-                         "rank average": f"{a['combination']['auc']:.3f}",
-                         "MICC-F220 CNN / classical": (f"{r['micc_f220']['cnn']['auc']:.3f} / "
-                                                       f"{r['micc_f220']['classical_auc']:.3f}")
-                         if "micc_f220" in r else "-"})
-        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
-    fig("results/phase8/fig_roc_cnn_vs_classical.png", "Test ROC: Classical vs. Deep Learning")
+    rows = []
+    for P, r in M["cnn"].items():
+        d = r["cnn_minus_classical"]
+        rows.append({"protocol": P, "CNN": fmt_ci(r["cnn_auc"]["auc"], *r["cnn_auc"]["ci"]),
+                     "classical": fmt_ci(r["classical_auc"]["auc"], *r["classical_auc"]["ci"]),
+                     "CNN − classical": fmt_ci(d["delta_auc"], d["ci_low"], d["ci_high"]),
+                     "rank average": f"{r['rank_average_auc']['auc']:.3f}",
+                     "MICC-F220 CNN": f"{r['micc_f220']['auc']:.3f}" if r.get("micc_f220") else "-"})
+    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+    fig("19_cnn_vs_classical_roc.png", "Test ROC: Classical vs. Deep Learning")
     c1, _ = st.columns([2, 1])
     with c1:
-        fig("results/phase8/fig_ela_examples.png", "ELA Input Comparison Across Dataset Releases")
-    sg = csv("results/phase8/posthoc_size_groups.csv")
-    if sg is not None:
-        with st.expander("Subgroup Stratification by Image Dimensions"):
-            st.dataframe(sg[sg.split == "test"][["protocol", "size_group", "n", "cnn_auc", "classical_auc",
-                                                 "cnn_minus_classical"]].round(3),
-                         hide_index=True, width="stretch")
+        fig("20_ela_inputs_format_leak.png", "ELA Input Comparison Across Dataset Releases")
+    with st.expander("Subgroup Stratification by Image Dimensions (post-hoc)"):
+        st.dataframe(table("cnn_size_groups_test").round(3), hide_index=True, width="stretch")

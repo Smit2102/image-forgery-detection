@@ -197,12 +197,11 @@ def prepare_image(path: str | Path, out_dir: str | Path) -> tuple[Path, list[str
 
 
 def protocol_stats(protocol: str) -> dict:
-    """Test-set coverage and accuracy of the deployed detector for a protocol (Phase 7b, clean condition)."""
-    f = ROOT / "results/phase7b/robustness.csv"
+    """Test-set coverage and accuracy of the deployed detector for a protocol (outputs/metrics.json)."""
+    import json
     try:
-        rb = pd.read_csv(f)
-        r = rb[(rb.protocol == protocol) & (rb.condition == "clean")].iloc[0]
-        return {"coverage": float(r.coverage), "accuracy_judged": float(r.accuracy_judged), "auc": float(r.auc)}
+        d = json.loads((ROOT / "outputs/metrics.json").read_text())["test_deployed"][protocol]
+        return {"coverage": float(d["coverage"]), "accuracy_judged": float(d["accuracy_judged"])}
     except Exception:
         return {}
 

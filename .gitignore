@@ -25,7 +25,6 @@ data/synthetic/
 
 # LaTeX build products (the final PDF is report/Patel_ImageForgeryDetection_report.pdf)
 report/latex/main.pdf
-report/Patel_ImageForgeryDetection_report.pdf
 report/latex/*.log
 report/latex/*.aux
 report/latex/*.bbl
@@ -34,3 +33,18 @@ report/latex/*.out
 
 # smoke-test outputs (regenerable with --smoke)
 results/phase8_smoke/
+
+# Kept on the author's machine, not in the repository (minimal public layout):
+# full pipeline results (final figures and numbers are collected in outputs/ by scripts/make_outputs.py)
+results/
+# LaTeX sources, drafts, slide sources and working notes of the report (the PDF and REPORT.md are in report/)
+report/latex/
+report/drafts/
+report/slides/
+report/outline.md
+report/DEMO_SCRIPT.md
+report/KNOWN_ISSUES.md
+# editor settings and the duplicate app-level Streamlit config
+.vscode/
+app/.streamlit/
+notebooks/.gitkeep
