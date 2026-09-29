@@ -1,5 +1,11 @@
 # Image Forgery Detection with Classical Image Processing
 
+[![Author: Smit2102](https://img.shields.io/badge/author-Smit2102-181717?logo=github)](https://github.com/Smit2102)
+[![Built with Claude](https://img.shields.io/badge/built%20with-Claude-D97757?logo=claude&logoColor=white)](https://www.anthropic.com/claude)
+[![Contributors](https://img.shields.io/github/contributors/Smit2102/image-forgery-detection)](https://github.com/Smit2102/image-forgery-detection/graphs/contributors)
+[![Release](https://img.shields.io/github/v/release/Smit2102/image-forgery-detection)](https://github.com/Smit2102/image-forgery-detection/releases/latest)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](requirements.txt)
+
 Interpretable detection and localisation of copy-move and splicing forgeries on **CASIA v2.0**, built from classical DIP techniques:
 - ELA and JPEG ghosts
 - histogram analysis
@@ -134,3 +140,10 @@ report/                IEEE report outline and per-section drafts
 | 8 | ELA-CNN baseline (ResNet-18) vs the classical pipeline under A / B / R, pre-registered one-time test | ✅ |
 | 8.5 | Streamlit interface: single-image analysis with SHAP explanation + PDF report, batch mode, dataset explorer, results dashboard | ✅ |
 | 9 | Final IEEE report (LaTeX/PDF), slides, demo script, repository tidy-up | ✅ |
+
+## Contributors
+
+| | Contributor | Role |
+|---|---|---|
+| <img src="https://github.com/Smit2102.png" width="48" alt="Smit2102"> | **Smit Patel** ([@Smit2102](https://github.com/Smit2102)) | Author: project design, experiments, evaluation, report |
+| <img src="https://img.shields.io/badge/-Claude-D97757?logo=claude&logoColor=white" alt="Claude"> | **Claude** ([Anthropic](https://www.anthropic.com/claude)), via Claude Code | AI pair programmer: code, analysis and drafting under the author's direction; credited as co-author on commits |
