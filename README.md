@@ -2,144 +2,157 @@
 
 [![Author: Smit2102](https://img.shields.io/badge/author-Smit2102-181717?logo=github)](https://github.com/Smit2102)
 [![Built with Claude](https://img.shields.io/badge/built%20with-Claude-D97757?logo=claude&logoColor=white)](https://www.anthropic.com/claude)
-[![Contributors](https://img.shields.io/github/contributors/Smit2102/image-forgery-detection)](https://github.com/Smit2102/image-forgery-detection/graphs/contributors)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2EA44F)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Smit2102/image-forgery-detection)](https://github.com/Smit2102/image-forgery-detection/releases/latest)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](requirements.txt)
 
-Interpretable detection and localisation of copy-move and splicing forgeries on **CASIA v2.0**, built from classical DIP techniques:
-- ELA and JPEG ghosts
-- histogram analysis
-- noise maps
-- DCT double quantisation
-- edges and copy-move matching
+Digital Image Processing (EDS 6364) — final project | Smit Patel
 
-It is evaluated under **format-controlled protocols**, because the dataset as released leaks its labels.
+**Project website:** https://smit2102.github.io/image-forgery-detection/
 
-## Deliverables
+This project detects and localises **copy-move** and **splicing** forgeries using only classical, interpretable image-processing techniques from the five course topics:
+- point processing
+- histogram processing
+- spatial filtering
+- frequency-domain filtering
+- edge and corner detection
 
-| What | Where |
-|---|---|
-| Final report (IEEE format, PDF) | [Download PDF (Release v2.0.0)](https://github.com/Smit2102/image-forgery-detection/releases/download/v2.0.0/Patel_ImageForgeryDetection_report.pdf) · source in [report/latex/](report/latex/) · rebuild with `python scripts/build_report.py` |
-| Slides (18, with speaker notes) | Online deck on claude.ai (private until shared; can be downloaded as PPTX or PDF) · slide source in [report/slides/](report/slides/) |
-| Walkthrough notebook (executed, with outputs) | [notebooks/project_walkthrough.ipynb](notebooks/project_walkthrough.ipynb): dataset, leak, every DIP technique step by step, detection, all results |
-| Live demo script | [report/DEMO_SCRIPT.md](report/DEMO_SCRIPT.md) |
-| Interactive Forensic Tool | Streamlit HUD: `.venv/bin/streamlit run app/Home.py` |
-| Command-line detector | `.venv/bin/python detect.py <image>` |
-| Known issues and deviations | [report/KNOWN_ISSUES.md](report/KNOWN_ISSUES.md) |
+Every technique produces a map a person can inspect. A learned fusion turns them into a verdict (tampered / authentic / *uncertain*) and a suspected-region mask.
 
-> **Headline finding (Phase 2):**
-> - File metadata alone separates authentic from tampered CASIA v2.0 images with **0.990 balanced accuracy (AUC 0.999)**, without looking at any image content.
-> - Re-encoding every image once (protocol B) removes that shortcut, but global shortcuts (mainly compression-history statistics) still reach **0.797**.
-> - Resampling before re-encoding (protocol R) brings all global shortcuts down to **0.649** (Phase-2 random-forest balanced accuracy). A tuned SVM on the same shortcut features still reaches AUC 0.771 under R in Phase 5; the forensic features clear that higher bar too.
->
-> These are the bars a genuine forensic feature must beat. See [report/drafts/02_splits_and_leakage.md](report/drafts/02_splits_and_leakage.md).
+It is evaluated on **CASIA v2.0**, and the first finding is about the dataset itself: **the files as released leak their labels**. A classifier that reads only file metadata separates authentic from tampered images with **0.990 balanced accuracy**, without looking at a single pixel, because most tampered images are TIFF files and the authentic ones are JPEGs. Every result here is therefore measured under leak-controlled protocols, against what those shortcuts alone can achieve.
 
-> **Result (Phase 5, dev set, grouped nested CV, main protocol R):**
-> - The 8 forensic modules reach **AUC 0.795** (random forest), against 0.721 for the shortcut features with the same model.
-> - Added on top of the shortcuts, they raise AUC by **+0.088 [0.078, 0.097]**.
-> - Copy-move keypoint matching and texture-normalised ELA carry most of the signal.
->
-> See [report/drafts/05_classification.md](report/drafts/05_classification.md). These are dev-set numbers; the frozen test set is evaluated in Phase 7.
+Full write-up:
+- [`report/REPORT.md`](report/REPORT.md): readable summary, with results and a validation section documenting what went wrong and how it was fixed.
+- [`report/Patel_ImageForgeryDetection_report.pdf`](report/Patel_ImageForgeryDetection_report.pdf): IEEE-format final report.
 
-> **Test set (Phase 7, evaluated once, protocol R):**
-> - Forensic modules: **AUC 0.805 [0.779, 0.831]**, against 0.712 for the shortcuts. They add **+0.103 [0.076, 0.129]** on top of the shortcuts.
-> - The calibrated detector judges 52 % of images with 86 % accuracy.
-> - Localisation reaches **pixel F1 0.198** (0.333 for regions above 5 % of the image).
->
-> The development estimates held on unseen data. See [report/drafts/07_results.md](report/drafts/07_results.md).
+The original proposal is [`GroupJ_Patel_Gupta_proposal.pdf`](GroupJ_Patel_Gupta_proposal.pdf).
 
-> **Deep-learning baseline (Phase 8, test set, same splits and protocols):**
-> - An ELA + ResNet-18 CNN reaches **AUC 0.994 on the files as released (A)**, where shortcut features alone reach 1.000, so that score does not show tampering detection.
-> - Under protocol R it reaches **0.770**, below the classical pipeline (0.805; −0.036 [−0.067, −0.005]); under B it reaches 0.811 against 0.920.
-> - The two are complementary under R: the CNN is better on splicing (+0.073, a lead the shortcut features match), and a rank average of the two reaches 0.824, level with the best Phase-7 model (0.829).
-> - On MICC-F220 the CNN's AUC (0.53 [0.36, 0.70]) is consistent with chance, while the classical detector reaches 0.97.
->
-> See [report/drafts/08_cnn.md](report/drafts/08_cnn.md).
-
-## Setup
-
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt       # includes `-e .` (the forgery package)
-```
-
-Place the dataset at `CASIA2/` with the subfolders `Au/`, `Tp/` and `CASIA 2 Groundtruth/`.
-
-## Reproduce
-
-```bash
-.venv/bin/python scripts/build_manifest.py      # Phase 1 -> data/manifest.csv, results/phase1/
-.venv/bin/python scripts/make_splits.py         # Phase 2 -> data/splits.csv (+ frozen test hash)
-.venv/bin/python scripts/run_leakage_study.py   # Phase 2 -> results/phase2/
-.venv/bin/python scripts/phase3_sanity.py       # Phase 3 -> results/phase3/ (module maps on 20 val images)
-.venv/bin/python scripts/sweep_params.py --write-config   # Phase 4 -> results/phase4/, tuned params into config.yaml
-.venv/bin/python scripts/extract_features.py    # Phase 5 input -> data/features/features_{A,B,R}.csv (dev set only)
-.venv/bin/python scripts/run_phase5.py          # Phase 5 -> results/phase5/, models/
-.venv/bin/python scripts/extract_maps.py        # Phase 6 input -> data/maps/ (cell-level evidence, train + val)
-.venv/bin/python scripts/run_phase6.py          # Phase 6 -> results/phase6/, models/localizer_{R,B}.joblib
-.venv/bin/python scripts/phase6_gating.py       # Phase 6b -> results/phase6/gating.md
-.venv/bin/python scripts/run_phase7.py --dry-run  # Phase 7 code check (train -> val; never touches test)
-.venv/bin/python scripts/run_phase7.py          # Phase 7: ONE-TIME test evaluation -> results/phase7/run_<n>/ (logged)
-.venv/bin/python scripts/phase7_posthoc.py      # Phase 7: post-hoc analysis of the saved test outputs (no re-evaluation)
-.venv/bin/python scripts/run_phase7b.py         # Phase 7b: robustness, synthetic forgeries, MICC-F220 -> results/phase7b/
-                                                #   (needs data/external/MICC-F220 from lci.micc.unifi.it; research use)
-.venv/bin/python scripts/make_ela.py            # Phase 8 input -> data/ela/{R,B,A}/ (ELA images, all splits)
-.venv/bin/python scripts/run_phase8.py --smoke  # Phase 8 code check (small subsets; never touches test)
-.venv/bin/python scripts/run_phase8.py --stage select   # Phase 8: CNN training + selection on val (GPU, ~2.5 h)
-.venv/bin/python scripts/run_phase8.py --stage refit    #   refit on train+val -> models/cnn_{R,B,A}.pt + pre-registration
-.venv/bin/python scripts/run_phase8.py --stage test     #   ONE-TIME test evaluation of the CNN (logged)
-.venv/bin/python scripts/phase8_posthoc.py      # Phase 8: post-hoc size analysis of the saved test scores
-.venv/bin/streamlit run app/Home.py            # Phase 8.5: interface (run from the project folder; localhost only)
-.venv/bin/python scripts/build_report.py        # Phase 9: final report PDF (needs Tectonic: brew install tectonic)
-.venv/bin/python -m pytest                      # unit + data-invariant tests (incl. headless UI tests)
-.venv/bin/python detect.py <image> [--protocol A|B|R]   # single image -> results/detect/<stem>/report.json
-```
-
-All parameters are in [config.yaml](config.yaml) and the random seed is fixed (42). `make_splits.py` refuses to change the frozen split (hashes in `data/test_split.sha256`) unless you pass `--refreeze`. Read the generated CSVs with `forgery.data.manifest.read_manifest()` and `forgery.data.splits.read_splits()`, which keep ids such as `00138` as strings.
-
-Protocols: **A** as released, **C** JPEG-only, **B** re-encoded once at Q=85, **R** downscaled ×0.75 then re-encoded.
-
-## Layout
+## What's in this repo
 
 ```
-config.yaml            all parameters
-detect.py              CLI entry point (wraps forgery.pipeline.detect)
-src/forgery/
-  io.py                image/mask loading, protocols A/B/R, JPEG metadata
-  pipeline.py          detect(path) -> Result  (the single entry point used everywhere)
-  features/            8 modules (ELA, patch-histogram chi2, noise, JPEG ghost, DCT double quantisation,
-                       edge sharpness, copy-move keypoints, copy-move blocks):
-                       extract(img) -> FeatureOutput(evidence_map, features)
-  data/                file-name parsing, manifest, leakage-safe splits
-  eval/                shortcut study, metrics, classification + statistics
-  localize/            fusion of the 8 evidence maps into a tampered-region mask
-  cnn.py               Phase-8 baseline: ELA + ResNet-18 (tiles, pooling, training loop)
-  explain.py           per-image SHAP explanation, plain-language text, PDF/JSON report (used by the UI)
-app/                   Streamlit interface: Home.py + pages/ (analyse, batch, dataset explorer, results)
-scripts/               one script per pipeline step
-tests/                 pytest suite
-data/                  manifest.csv, splits.csv, test_split.sha256 (cache/ is regenerable)
-results/phaseN/        generated tables and figures
-models/                trained classifiers (regenerable; not in git)
-report/                IEEE report outline and per-section drafts
+.
+├── GroupJ_Patel_Gupta_proposal.pdf   original project proposal
+├── index.html                        project website (GitHub Pages)
+├── config.yaml                       every parameter (tuned values written by the sweep)
+├── detect.py                         command line: python detect.py photo.jpg
+├── data/
+│   ├── manifest.csv                  audit of all 12,614 images (labels, formats, masks, JPEG tables)
+│   ├── splits.csv                    leakage-safe train / val / test split
+│   └── test_split.sha256             frozen-split hashes (the test set was fixed before any training)
+├── src/forgery/                      the detector (a Python package)
+│   ├── features/                     the 8 DIP modules: ela, histogram, noise, jpeg_ghost, dct_dq,
+│   │                                 edges, copymove (keypoint + block)
+│   ├── localize/                     fusion of the 8 evidence maps into a tampered-region mask
+│   ├── eval/                         shortcut study, metrics, classification and statistics
+│   ├── pipeline.py                   detect(): the single entry point used everywhere
+│   └── explain.py                    per-image explanations (SHAP) and PDF reports
+├── scripts/                          the pipeline, one script per step (see "Running it" below)
+├── app/                              Streamlit interface: analyse, batch, dataset explorer, results
+├── notebooks/
+│   └── project_walkthrough.ipynb     the whole project step by step, with outputs
+├── outputs/
+│   ├── 00_original.png … 01b_ground_truth.png        input, protocol R, ground truth
+│   ├── 02a_ela_residual_x10.png / 02b_…              (point processing)
+│   ├── 03a_ela_equalised.png / 03b_… / 03c_…         (histogram processing)
+│   ├── 04a_noise_residual.png / 04b_noise_sigma.png  (spatial filtering)
+│   ├── 05a_dct_coefficient_histogram.png / 05b_… / 05c_jpeg_ghost.png   (frequency domain)
+│   ├── 06a_canny_edges.png … 06d_copymove_blocks.png (edge & corner detection)
+│   ├── 07a_fused_probability.png / 07b_detection_overlay.png            (detection)
+│   ├── 08_summary_grid.png                           the whole pipeline on one image
+│   ├── 09_… – 21_…                                    evaluation figures (leakage, SHAP, test ROC,
+│   │                                                  errors, robustness, CNN comparison, interface)
+│   └── metrics.json                  every headline number, read from the saved results
+├── report/
+│   ├── REPORT.md                     readable write-up
+│   └── Patel_ImageForgeryDetection_report.pdf   IEEE-format final report
+└── tests/                            209 automated tests
 ```
 
-## Status
+## Pipeline stages
 
-| Phase | Content | State |
+| Category | Techniques | Code |
 |---|---|---|
-| 0 | Environment, config, `detect()` interface, tests | ✅ |
-| 1 | Manifest, mask matching, dataset statistics | ✅ |
-| 2 | Grouped splits, frozen split, protocols A/B/C/R, shortcut study | ✅ |
-| 3 | 8 forensic feature modules with synthetic-forgery tests | ✅ |
-| 4 | Parameter sweeps (image + pixel AUC, protocols B and R) | ✅ |
-| 5 | Nested-CV SVM / RF, added value over shortcuts, ablations, statistics, calibration, SHAP | ✅ |
-| 6 | Localisation: learned fusion of the 8 maps, post-processing, gating; `detect.py` writes mask.png / overlay.png | ✅ |
-| 7 | One-time test evaluation (run #1): classification, deployed detector, localisation, error analysis | ✅ |
-| 7b | Robustness (JPEG, resize, blur, noise, social upload), synthetic forgeries, MICC-F220 cross-dataset | ✅ |
-| 8 | ELA-CNN baseline (ResNet-18) vs the classical pipeline under A / B / R, pre-registered one-time test | ✅ |
-| 8.5 | Streamlit interface: single-image analysis with SHAP explanation + PDF report, batch mode, dataset explorer, results dashboard | ✅ |
-| 9 | Final IEEE report (LaTeX/PDF), slides, demo script, repository tidy-up | ✅ |
+| Point processing | Error level analysis (texture-normalised); JPEG ghosts (re-save at Q50–95) | `features/ela.py`, `features/jpeg_ghost.py` |
+| Histogram processing | Histogram-equalised ELA; χ² distance between patch histograms | `features/histogram.py` |
+| Spatial filtering | High-pass noise residual (Immerkær), robust local noise σ with edges excluded | `features/noise.py` |
+| Frequency-domain filtering | 8×8 DCT double-quantisation (permutation-tested periodicity); DCT-block copy-move matching | `features/dct_dq.py`, `features/copymove.py` |
+| Edge & corner detection | Canny edge sharpness; SIFT keypoint copy-move with mirror matching and RANSAC (Harris tested, rejected) | `features/edges.py`, `features/copymove.py` |
+| Fusion | Random forest (compared with an SVM), isotonic calibration and an uncertain band; gradient-boosted map fusion for localisation | `eval/classify.py`, `localize/fusion.py` |
+| Optional extension | ELA + ResNet-18 CNN baseline under the same protocols | `cnn.py` |
+
+Each module outputs an evidence map and *within-image inconsistency* features, so a region is compared with the rest of its own image, never with other images.
+
+## Data sources
+
+- **CASIA v2.0** (12,614 images and ground-truth masks), available on [Kaggle](https://www.kaggle.com/search?q=CASIA+2.0+image+tampering+detection). It is **not included** here: place it at `CASIA2/` with the subfolders `Au/`, `Tp/` and `CASIA 2 Groundtruth/`.
+- **MICC-F220** (Amerini et al., 2011), from the LCI lab at the University of Florence (lci.micc.unifi.it), used for the cross-dataset test. It is **not included**: place it at `data/external/MICC-F220/`.
+
+Both datasets are for non-commercial research use under their own terms.
+
+## Running it, step by step
+
+1. **Clone the repo and create the environment.**
+   ```bash
+   git clone https://github.com/Smit2102/image-forgery-detection.git
+   cd image-forgery-detection
+   python3 -m venv .venv
+   .venv/bin/pip install -r requirements.txt      # includes `-e .` (the forgery package)
+   ```
+
+2. **Try the detector on your own photo.** The trained models are regenerated by the pipeline, so run steps 3–4 first on a fresh clone.
+   ```bash
+   .venv/bin/python detect.py photo.jpg            # -> results/detect/<name>/report.json, mask.png, overlay.png
+   .venv/bin/streamlit run app/Home.py              # interface at http://localhost:8510
+   ```
+
+3. **Place the dataset** (see *Data sources*), then **run the pipeline in order**. Each step writes to `results/`:
+   ```bash
+   .venv/bin/python scripts/build_manifest.py       # 1  dataset audit
+   .venv/bin/python scripts/make_splits.py          # 2  leakage-safe split (refuses to change the frozen test set)
+   .venv/bin/python scripts/run_leakage_study.py    # 3  shortcut study: how far do global cues go?
+   .venv/bin/python scripts/phase3_sanity.py        # 4  module sanity check
+   .venv/bin/python scripts/sweep_params.py --write-config        # 5  parameter tuning on validation
+   .venv/bin/python scripts/extract_features.py && .venv/bin/python scripts/run_phase5.py     # 6  classification
+   .venv/bin/python scripts/extract_maps.py && .venv/bin/python scripts/run_phase6.py         # 7  localisation
+   .venv/bin/python scripts/run_phase7.py --dry-run # 8  check, then ONE-TIME test evaluation (logged):
+   .venv/bin/python scripts/run_phase7.py
+   .venv/bin/python scripts/run_phase7b.py          # 9  robustness, synthetic forgeries, MICC-F220
+   .venv/bin/python scripts/make_ela.py && .venv/bin/python scripts/run_phase8.py --stage select   # 10 CNN baseline
+   .venv/bin/python scripts/make_outputs.py         # 11 collect final figures + metrics.json into outputs/
+   ```
+
+4. **Inspect the results.**
+   - Quick visual overview: `outputs/08_summary_grid.png`.
+   - Every number: `outputs/metrics.json`.
+   - Guided tour: `notebooks/project_walkthrough.ipynb`.
+   - Full write-up: `report/REPORT.md`.
+   - Tests: `.venv/bin/python -m pytest` runs all 209.
+
+## Key results at a glance
+
+- **The leak:** file metadata alone gives **0.990** balanced accuracy on the released files. Re-encoding every image (protocol B) leaves 0.797 to the shortcuts; downscaling ×0.75 before re-encoding (protocol R) leaves 0.649.
+- **Classification on the frozen test set** (1,892 images, evaluated once):
+  - forensic features reach **AUC 0.805 [0.779, 0.831]** under R, against 0.712 for the shortcuts;
+  - added on top of the shortcuts they gain **+0.103 [0.076, 0.129]**;
+  - under protocol B they reach AUC 0.920.
+- **Calibrated detector:** it judges **52 %** of images with **86 %** accuracy and marks the rest *uncertain*. A "tampered" verdict is right **94 %** of the time.
+- **Localisation:** pixel **F1 0.198** under R (0.333 for regions above 5 % of the image) and 0.308 under B.
+- **Robustness:** under R the AUC stays at 0.78 or above after JPEG re-compression down to quality 50. A social-media-style upload costs 0.04.
+- **Unseen dataset:** the detector reaches **AUC 0.972** on MICC-F220 copy-moves, which come from only 11 forged scenes.
+- **Deep-learning baseline (ELA + ResNet-18):**
+  - it reaches 0.994 only on the leaking files, where shortcuts alone reach 1.000;
+  - under R it trails the classical pipeline (0.770 vs 0.805);
+  - on MICC-F220 its AUC is consistent with chance (0.53).
+- **Weaknesses:**
+  - splices between photos with the same processing history;
+  - low-detail images;
+  - self-similar scenes, which can mimic copy-move.
+
+Full numbers, confidence intervals and the validation process are in [`report/REPORT.md`](report/REPORT.md).
+
+## License
+
+The code in this repository is under the [MIT License](LICENSE). The CASIA v2.0 and MICC-F220 datasets are **not** part of this repository or its license: they are distributed by their authors for research use under their own terms. The example images in `outputs/` are derived from CASIA v2.0 and are shown for research illustration only.
 
 ## Contributors
 

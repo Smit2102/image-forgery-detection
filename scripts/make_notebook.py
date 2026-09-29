@@ -18,7 +18,7 @@ This notebook walks through the project end to end:
 4. **Detection end to end**: verdict, suspected region and an explanation of the decision
 5. A **summary of all results**: development CV, the one-time test set, localisation, robustness, a second dataset and the CNN comparison
 
-The heavy computation (feature extraction, training, the test evaluation) is done by the scripts in `scripts/`. Their outputs are saved in `results/` and read here. This notebook runs the detector only on example images. **The held-out test split is never opened**: every test-set number below is read from the saved outputs of the one-time evaluation.
+The heavy computation (feature extraction, training, the test evaluation) is done by the scripts in `scripts/`. Their final figures and numbers are collected in `outputs/` (by `scripts/make_outputs.py`) and read here. This notebook runs the detector only on example images. **The held-out test split is never opened**: every test-set number below is read from the saved outputs of the one-time evaluation.
 
 Full details are in the report, `report/Patel_ImageForgeryDetection_report.pdf`.
 """)
@@ -65,7 +65,7 @@ kind = np.where(df.label == 0, "authentic", df.forgery_type)
 display(pd.crosstab(kind, df.format, margins=True).rename_axis(index="class (all 12,614 images)", columns="format"))
 print(f"median tampered area: {100 * df.tampered_frac.median():.1f} % of the image")
 print("split sizes:", df.split.value_counts().to_dict())
-display(Image(filename=str(resolve("results/phase1/fig_samples.png")), width=900))
+display(Image(filename=str(resolve("outputs/09_dataset_samples.png")), width=900))
 """)
 
 md(r"""
@@ -77,11 +77,11 @@ A random forest trained only on *global* cues (file metadata, image size, naive 
 """)
 
 code(r"""
-lk = pd.read_csv(resolve("results/phase2/leakage_summary.csv"))
-piv = lk.pivot_table(index="feature_set", columns="protocol", values="balanced_accuracy_mean")
+MET = json.loads(resolve("outputs/metrics.json").read_text())
+piv = pd.DataFrame(MET["leakage_balanced_accuracy"]).T
 display(piv[["A", "C", "B85", "R85"]].rename(columns={"A": "A: as released", "C": "C: JPEG only",
                                                       "B85": "B: re-encoded Q85", "R85": "R: resampled + Q85"}))
-display(Image(filename=str(resolve("results/phase2/fig_leakage.png")), width=800))
+display(Image(filename=str(resolve("outputs/10_leakage_shortcuts.png")), width=800))
 """)
 
 md(r"""
@@ -249,9 +249,9 @@ Out-of-fold ROC-AUC by feature set, protocol and model:
 """)
 
 code(r"""
-r5 = pd.read_csv(resolve("results/phase5/results.csv"))
+r5 = pd.DataFrame(MET["dev_cv_auc"])
 display(r5.pivot_table(index="feature_set", columns=["protocol", "model"], values="roc_auc_mean"))
-av = pd.read_csv(resolve("results/phase5/added_value.csv"))
+av = pd.DataFrame(MET["dev_added_value"])
 display(av[av.protocol == "R"][["model", "comparison", "delta_auc", "ci_low", "ci_high"]])
 """)
 
@@ -261,13 +261,12 @@ Image-level metrics (AUC, and accuracy / precision / recall / F1 at threshold 0.
 """)
 
 code(r"""
-t = pd.read_csv(resolve("results/phase7/run_1/test_classification.csv"))
+t = pd.DataFrame(MET["test_classification"])
 display(t[t.feature_set.isin(["shortcuts", "forensic_all"])][["protocol", "feature_set", "model", "auc", "auc_ci_low",
          "auc_ci_high", "accuracy", "precision", "recall", "f1", "balanced_accuracy"]])
-o = pd.read_csv(resolve("results/phase7/run_1/test_outcomes_R.csv"))
 display(Markdown("**Deployed calibrated detector (protocol R), verdicts vs truth (confusion matrix):**"))
-display(pd.crosstab(o.label.map({0: "authentic", 1: "tampered"}), o.verdict).rename_axis(index="true class", columns="verdict"))
-display(Image(filename=str(resolve("results/phase7/run_1/fig_roc_test_R.png")), width=420))
+display(pd.DataFrame(MET["test_deployed"]["R"]["confusion_matrix"]).T.rename_axis(index="true class", columns="verdict"))
+display(Image(filename=str(resolve("outputs/15_test_roc.png")), width=420))
 """)
 
 md(r"""
@@ -275,9 +274,9 @@ md(r"""
 """)
 
 code(r"""
-for P in ("R", "B"):
-    per = pd.read_csv(resolve(f"results/phase7/run_1/localisation_per_image_{P}.csv"))
-    print(f"protocol {P}: pixel F1 {per.f1.mean():.4f}, IoU {per.iou.mean():.4f} over {len(per)} tampered images")
+for P, L in MET["test_localisation"].items():
+    print(f"protocol {P}: pixel F1 {L['f1']:.4f} (95% CI {L['f1_ci'][0]:.3f}-{L['f1_ci'][1]:.3f}), IoU {L['iou']:.4f} "
+          f"over {L['n_tampered']} tampered images; F1 by area {L['f1_by_area']}")
 """)
 
 md(r"""
@@ -285,11 +284,10 @@ md(r"""
 """)
 
 code(r"""
-rb = pd.read_csv(resolve("results/phase7b/robustness.csv"))
+rb = pd.DataFrame(MET["robustness"])
 display(rb.pivot_table(index="condition", columns="protocol", values="auc", sort=False))
-ex = pd.read_csv(resolve("results/phase7b/external.csv"))
-display(ex[["protocol", "dataset", "auc", "auc_ci", "coverage", "accuracy_judged"]])
-display(Image(filename=str(resolve("results/phase7b/fig_robustness.png")), width=950))
+display(pd.DataFrame(MET["micc_f220"])[["protocol", "auc", "auc_ci", "coverage", "accuracy_judged"]])
+display(Image(filename=str(resolve("outputs/17_robustness.png")), width=950))
 """)
 
 md(r"""
@@ -297,15 +295,14 @@ md(r"""
 """)
 
 code(r"""
-s8 = json.loads(resolve("results/phase8/summary.json").read_text())
 rows = []
-for P, r in s8["protocols"].items():
-    rows.append({"protocol": P, "CNN AUC": r["auc"]["cnn"]["auc"], "classical AUC": r["auc"]["classical"]["auc"],
+for P, r in MET["cnn"].items():
+    rows.append({"protocol": P, "CNN AUC": r["cnn_auc"]["auc"], "classical AUC": r["classical_auc"]["auc"],
                  "CNN - classical": r["cnn_minus_classical"]["delta_auc"],
                  "CI": f"[{r['cnn_minus_classical']['ci_low']:.3f}, {r['cnn_minus_classical']['ci_high']:.3f}]",
-                 "MICC-F220 CNN": r.get("micc_f220", {}).get("cnn", {}).get("auc")})
+                 "MICC-F220 CNN": (r.get("micc_f220") or {}).get("auc")})
 display(pd.DataFrame(rows))
-display(Image(filename=str(resolve("results/phase8/fig_roc_cnn_vs_classical.png")), width=950))
+display(Image(filename=str(resolve("outputs/19_cnn_vs_classical_roc.png")), width=950))
 """)
 
 md(r"""

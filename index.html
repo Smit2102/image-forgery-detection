@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Forgery Detection — Classical DIP on CASIA v2.0</title>
+<meta name="description" content="Interpretable copy-move and splicing detection with classical image processing, evaluated on CASIA v2.0 under leak-controlled protocols. DIP course project by Smit Patel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1116; --panel:#151A22; --raised:#1B222C; --line:#29313D;
+    --text:#E8ECF1; --dim:#A3ADBA; --faint:#7C8796;
+    --red:#FF5A4F; --green:#3DDC97; --amber:#F2B84B; --blue:#6FA8FF;
+    --display:'Fraunces', Georgia, serif; --body:'IBM Plex Sans', system-ui, sans-serif; --mono:'IBM Plex Mono', monospace;
+    --max:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue)} a:hover{color:#9CC3FF}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(14,17,22,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;gap:22px;align-items:center;height:56px;overflow-x:auto;white-space:nowrap}
+  nav b{font-family:var(--display);font-size:18px;margin-right:auto}
+  nav a{color:var(--dim);text-decoration:none;font-size:14px} nav a:hover{color:var(--text)}
+  header.hero{padding:88px 0 56px;border-bottom:1px solid var(--line);
+    background:radial-gradient(900px 400px at 85% -10%, rgba(255,90,79,.13), transparent 60%),radial-gradient(700px 360px at 0% 110%, rgba(111,168,255,.10), transparent 60%)}
+  .eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(36px,6vw,64px);line-height:1.05;margin:14px 0 18px;letter-spacing:-.01em}
+  h2{font-family:var(--display);font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1.15;margin:0 0 14px}
+  h3{font-size:20px;margin:0 0 6px}
+  .lede{font-size:20px;color:var(--dim);max-width:760px}
+  .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .btn{display:inline-block;padding:11px 18px;border-radius:8px;border:1px solid var(--line);background:var(--raised);color:var(--text);text-decoration:none;font-weight:500;font-size:15px}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#1A0B0A}
+  .btn:hover{border-color:var(--dim);color:var(--text)} .btn.primary:hover{color:#1A0B0A;filter:brightness(1.08)}
+  section{padding:72px 0;border-bottom:1px solid var(--line)}
+  .sub{color:var(--dim);max-width:760px;margin:0 0 30px}
+  .big{font-family:var(--display);font-size:clamp(64px,12vw,128px);font-weight:700;line-height:1;color:var(--red)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+  .stage{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:28px 0;border-top:1px solid var(--line)}
+  .stage:first-of-type{border-top:none}
+  .tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+  .stage p{color:var(--dim);margin:6px 0 0;font-size:15.5px}
+  .imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  figure img{display:block;width:100%;height:auto;background:#0B0D11}
+  figcaption{font-size:13px;color:var(--faint);padding:8px 10px;font-family:var(--mono)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:26px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card .n{font-family:var(--display);font-size:40px;font-weight:700;line-height:1.1}
+  .card .l{color:var(--dim);font-size:14px;margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0 24px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--faint);font-weight:500;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .win{color:var(--green);font-weight:600}
+  .note{font-size:14px;color:var(--faint)}
+  ul.clean{padding-left:20px;color:var(--dim)} ul.clean li{margin:8px 0}
+  ul.clean b{color:var(--text)}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;color:#CFD6DF}
+  footer{padding:36px 0 60px;color:var(--faint);font-size:14px}
+  .grid2>*{min-width:0}
+  @media (max-width:760px){.grid2{grid-template-columns:1fr}.stage{grid-template-columns:1fr;gap:12px}section{padding:52px 0}
+    table{display:block;overflow-x:auto;font-size:14px}th,td{padding:8px 8px}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <b>Forgery detection</b>
+  <a href="#leak">The leak</a><a href="#pipeline">Pipeline</a><a href="#numbers">Results</a>
+  <a href="#cnn">CNN baseline</a><a href="#validation">Validation</a><a href="#run">Run it</a>
+  <a href="https://github.com/Smit2102/image-forgery-detection">GitHub</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">EDS 6364 Digital Image Processing · Smit Patel</div>
+  <h1>Is this photo real?<br>Classical DIP evidence, honestly evaluated.</h1>
+  <p class="lede">Eight interpretable techniques (ELA, histograms, noise, JPEG ghosts, DCT, edges and two copy-move matchers) detect and localise copy-move and splicing forgeries. The evaluation on CASIA v2.0 controls for a label leak that makes the dataset, as released, solvable without looking at the pixels.</p>
+  <div class="btns">
+    <a class="btn primary" href="report/Patel_ImageForgeryDetection_report.pdf">Read the report (PDF)</a>
+    <a class="btn" href="https://github.com/Smit2102/image-forgery-detection/blob/main/report/REPORT.md">Summary (REPORT.md)</a>
+    <a class="btn" href="https://github.com/Smit2102/image-forgery-detection/blob/main/notebooks/project_walkthrough.ipynb">Notebook walkthrough</a>
+    <a class="btn" href="https://github.com/Smit2102/image-forgery-detection">Source code</a>
+  </div>
+</div></header>
+
+<section id="leak"><div class="wrap grid2">
+  <div>
+    <div class="tag">Finding 1 · the dataset</div>
+    <h2>The files give the answer away</h2>
+    <div class="big">0.990</div>
+    <p class="sub" style="margin-top:14px">balanced accuracy from <b>file metadata alone</b> on CASIA v2.0 as released (AUC 0.999). Most tampered images are TIFF files; authentic images are JPEGs, 89 % of them with standard IJG tables that no tampered JPEG uses.</p>
+    <table>
+      <tr><th>Protocol</th><th class="num">All shortcuts</th></tr>
+      <tr><td>A · files as released</td><td class="num">0.989</td></tr>
+      <tr><td>C · JPEG files only</td><td class="num">0.986</td></tr>
+      <tr><td>B · re-encoded as JPEG Q85</td><td class="num">0.797</td></tr>
+      <tr><td><b>R · downscaled ×0.75, then re-encoded</b> (main)</td><td class="num win">0.649</td></tr>
+    </table>
+    <p class="note">Balanced accuracy of classifiers that see only global cues (metadata, size, compression statistics). A forensic feature counts only if it beats these under the same protocol.</p>
+  </div>
+  <figure><img src="outputs/10_leakage_shortcuts.png" alt="Bar chart: balanced accuracy of shortcut features under protocols A, C, B and R" loading="lazy"><figcaption>outputs/10_leakage_shortcuts.png</figcaption></figure>
+</div></section>
+
+<section id="pipeline"><div class="wrap">
+  <div class="tag">The pipeline, in order</div>
+  <h2>Five course topics, eight techniques</h2>
+  <p class="sub">Every step on one validation copy-move image (the pasted person on the right is a mirrored copy of the one on the left), after protocol R. Each module compares a region with the rest of <i>its own</i> image.</p>
+
+  <div class="stage"><div><div class="tag">0 · input</div><h3>Protocol R and ground truth</h3><p>The image is downscaled ×0.75 and re-saved as JPEG Q85 before any analysis, which erases file-format and compression-history shortcuts.</p></div>
+    <div class="imgs"><figure><img src="outputs/00_original.png" alt="Original image" loading="lazy"><figcaption>00 as released</figcaption></figure><figure><img src="outputs/01b_ground_truth.png" alt="Ground-truth region" loading="lazy"><figcaption>01b ground truth (green)</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">1 · point processing</div><h3>Error level analysis</h3><p>|I − JPEG<sub>q</sub>(I)| per pixel: a region with a different compression history re-compresses differently. Divided by block texture so busy areas are not mistaken for tampering.</p></div>
+    <div class="imgs"><figure><img src="outputs/02a_ela_residual_x10.png" alt="ELA residual" loading="lazy"><figcaption>02a ELA residual ×10</figcaption></figure><figure><img src="outputs/02b_ela_texture_normalised.png" alt="Texture-normalised ELA" loading="lazy"><figcaption>02b texture-normalised</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">2 · histogram processing</div><h3>Equalisation and χ² patch histograms</h3><p>The low-contrast ELA residual is histogram-equalised; each patch's histogram is compared with the image's typical one.</p></div>
+    <div class="imgs"><figure><img src="outputs/03a_ela_equalised.png" alt="Equalised ELA" loading="lazy"><figcaption>03a equalised ELA</figcaption></figure><figure><img src="outputs/03b_histogram_before_after.png" alt="Histograms before and after equalisation" loading="lazy"><figcaption>03b before / after</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">3 · spatial filtering</div><h3>Local noise level</h3><p>A high-pass kernel leaves only sensor noise; its robust σ is estimated per block over non-edge pixels. A region from another camera often carries different noise.</p></div>
+    <div class="imgs"><figure><img src="outputs/04a_noise_residual.png" alt="Noise residual" loading="lazy"><figcaption>04a high-pass residual</figcaption></figure><figure><img src="outputs/04b_noise_sigma.png" alt="Noise sigma map" loading="lazy"><figcaption>04b log σ per block</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">4 · frequency domain</div><h3>DCT double quantisation and JPEG ghosts</h3><p>JPEG quantises 8×8 DCT coefficients, so their histogram spikes at multiples of the step; double compression leaves a periodic pattern that pasted regions lack. JPEG ghosts re-save at many qualities and look for regions that disagree.</p></div>
+    <div class="imgs"><figure><img src="outputs/05a_dct_coefficient_histogram.png" alt="DCT coefficient histogram" loading="lazy"><figcaption>05a DCT histogram</figcaption></figure><figure><img src="outputs/05c_jpeg_ghost.png" alt="JPEG ghost map" loading="lazy"><figcaption>05c JPEG ghost</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">5 · edge &amp; corner detection</div><h3>Canny sharpness and SIFT copy-move</h3><p>Canny edges measure boundary sharpness. SIFT keypoints are matched against the image itself <i>and its mirror</i>, then verified with RANSAC — here it finds both the source and the flipped copy (14 inliers).</p></div>
+    <div class="imgs"><figure><img src="outputs/06a_canny_edges.png" alt="Canny edges" loading="lazy"><figcaption>06a Canny edges</figcaption></figure><figure><img src="outputs/06c_copymove_keypoints.png" alt="Copy-move keypoint evidence" loading="lazy"><figcaption>06c keypoint copy-move</figcaption></figure></div></div>
+
+  <div class="stage"><div><div class="tag">6 · detection</div><h3>Fusion, verdict and region</h3><p>A calibrated random forest fuses 82 features into P(tampered) and abstains inside an uncertain band; gradient boosting fuses the eight maps into a mask. Verdict here: tampered (P = 0.99), likely copy-move.</p></div>
+    <div class="imgs"><figure><img src="outputs/07a_fused_probability.png" alt="Fused tampering probability" loading="lazy"><figcaption>07a fused probability</figcaption></figure><figure><img src="outputs/07b_detection_overlay.png" alt="Detected region overlay" loading="lazy"><figcaption>07b suspected region</figcaption></figure></div></div>
+</div></section>
+
+<section id="numbers"><div class="wrap">
+  <div class="tag">Every number, read from the run</div>
+  <h2>Test set, evaluated once</h2>
+  <p class="sub">1,892 held-out images, frozen by hash before any model was trained, evaluated once; every later use is logged. Protocol R unless stated.</p>
+  <div class="cards">
+    <div class="card"><div class="n">0.805</div><div class="l">test AUC, 95 % CI [0.779, 0.831], against 0.712 for the shortcuts</div></div>
+    <div class="card"><div class="n">+0.103</div><div class="l">added over the shortcut features, CI [0.076, 0.129]</div></div>
+    <div class="card"><div class="n">86 %</div><div class="l">accuracy on the 52 % of images the calibrated detector judges</div></div>
+    <div class="card"><div class="n">0.972</div><div class="l">AUC on MICC-F220, an unseen copy-move dataset (11 forged scenes)</div></div>
+  </div>
+  <div class="grid2">
+    <div>
+      <table>
+        <tr><th>At threshold 0.5</th><th class="num">R</th><th class="num">B</th></tr>
+        <tr><td>Accuracy</td><td class="num">0.749</td><td class="num">0.850</td></tr>
+        <tr><td>Precision</td><td class="num">0.756</td><td class="num">0.813</td></tr>
+        <tr><td>Recall</td><td class="num">0.567</td><td class="num">0.819</td></tr>
+        <tr><td>F1</td><td class="num">0.648</td><td class="num">0.816</td></tr>
+        <tr><td>Localisation pixel F1</td><td class="num">0.198</td><td class="num">0.308</td></tr>
+      </table>
+      <table>
+        <tr><th>Deployed detector (R)</th><th class="num">authentic</th><th class="num">tampered</th><th class="num">uncertain</th></tr>
+        <tr><td>truly authentic (1,123)</td><td class="num">619</td><td class="num">13</td><td class="num">491</td></tr>
+        <tr><td>truly tampered (769)</td><td class="num">126</td><td class="num">222</td><td class="num">421</td></tr>
+      </table>
+      <p class="note">Robust to re-saving: AUC ≥ 0.78 down to JPEG quality 50; a social-media-style upload costs 0.04. Main weaknesses: same-history splices, low-detail images, self-similar scenes (all 13 false alarms had copy-move matches).</p>
+    </div>
+    <figure><img src="outputs/15_test_roc.png" alt="Test ROC curves under protocol R" loading="lazy"><figcaption>outputs/15_test_roc.png</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="cnn"><div class="wrap grid2">
+  <div>
+    <div class="tag">Finding 2 · deep learning</div>
+    <h2>An ELA-CNN scores highest only on the leaking files</h2>
+    <p class="sub">A pretrained ResNet-18 on ELA images, same splits and protocols, pre-registered and evaluated once.</p>
+    <table>
+      <tr><th>Test AUC</th><th class="num">ELA-CNN</th><th class="num">Classical</th></tr>
+      <tr><td>A · files as released</td><td class="num">0.994</td><td class="num">0.981</td></tr>
+      <tr><td>B · re-encoded</td><td class="num">0.811</td><td class="num win">0.920</td></tr>
+      <tr><td>R · strict</td><td class="num">0.770</td><td class="num win">0.805</td></tr>
+      <tr><td>MICC-F220 (R)</td><td class="num">0.529</td><td class="num win">0.972</td></tr>
+    </table>
+    <p class="note">On the released files the shortcut features alone reach 1.000. Under R the CNN trails by 0.036 [0.005, 0.067] and is not significantly better than a shortcut SVM; on MICC-F220 its AUC is consistent with chance.</p>
+  </div>
+  <figure><img src="outputs/20_ela_inputs_format_leak.png" alt="ELA of an authentic JPEG and a tampered TIFF, as released and after protocol R" loading="lazy"><figcaption>ELA as released: the authentic JPEG is almost black, the tampered TIFF lights up</figcaption></figure>
+</div></section>
+
+<section id="validation"><div class="wrap">
+  <div class="tag">Validation, including what went wrong</div>
+  <h2>Mistakes caught before the test set was touched</h2>
+  <ul class="clean">
+    <li><b>DCT periodicity test:</b> 16–48 % false positives on wide histograms → replaced by a per-histogram permutation null (0–3 %).</li>
+    <li><b>Untuned defaults:</b> the detector entry point ignored the tuned parameters → it now refuses a model whose recorded parameters differ.</li>
+    <li><b>Copy-move:</b> mirrored copies were missed and unoriented pairs split one copy into two → mirror matching and pair orientation.</li>
+    <li><b>Noise:</b> flat patches became false low-noise outliers → excluded per pixel.</li>
+    <li><b>A pre-registered check that was invalid:</b> the CNN size check broke ties by label order → withdrawn, replaced by a labelled post-hoc analysis.</li>
+    <li><b>Test-set hygiene:</b> every use of the test split is logged with file fingerprints, including two early runs disclosed afterwards.</li>
+  </ul>
+  <p class="note">209 automated tests cover the modules on synthetic forgeries with known regions, the protocols, the split invariants, the statistics and the interface.</p>
+</div></section>
+
+<section id="run"><div class="wrap">
+  <div class="tag">Run it</div>
+  <h2>From a fresh clone</h2>
+<pre>git clone https://github.com/Smit2102/image-forgery-detection.git
+cd image-forgery-detection
+python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
+# place CASIA v2.0 at CASIA2/, then run the pipeline scripts in order (see README)
+.venv/bin/python detect.py photo.jpg          # one image -> verdict, mask, overlay, report.json
+.venv/bin/streamlit run app/Home.py           # interactive tool at http://localhost:8510</pre>
+  <figure style="margin-top:22px"><img src="outputs/08_summary_grid.png" alt="The whole pipeline on one image" loading="lazy"><figcaption>outputs/08_summary_grid.png — the whole pipeline on one image</figcaption></figure>
+</div></section>
+
+<footer><div class="wrap">
+  Smit Patel (<a href="https://github.com/Smit2102">@Smit2102</a>) · EDS 6364 Digital Image Processing · code under the <a href="LICENSE">MIT License</a>; CASIA v2.0 and MICC-F220 are not included and remain under their authors' research terms · built with Claude (Anthropic) as AI pair programmer.
+</div></footer>
+</body>
+</html>

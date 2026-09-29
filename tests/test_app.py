@@ -30,7 +30,7 @@ def _run(page: str, timeout: int = 120):
 
 def test_home():
     at = _run("Home.py")
-    assert "Image Forgery Detection" in at.title[0].value
+    assert any("Image Forgery Detection" in m.value for m in at.markdown)      # hero banner (HTML markdown)
 
 
 def test_results_dashboard():

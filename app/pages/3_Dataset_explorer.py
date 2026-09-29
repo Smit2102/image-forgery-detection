@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from common import dev_manifest, page_setup, result_file
+from common import dev_manifest, metrics, page_setup
 from forgery import explain as E
 from forgery.config import resolve
 from forgery.io import load_mask, load_rgb
@@ -81,12 +81,10 @@ with tab_leak:
         color=alt.Color("tables:N", scale=alt.Scale(range=["#999999", "#4C78A8"])),
         tooltip=["kind", "tables", "images"]).properties(height=alt.Step(34), title="JPEG quantisation tables by kind"),
         width="stretch")
-    f = result_file("results/phase2/leakage_summary.csv")
-    if f.exists():
-        lk = pd.read_csv(f)
+    lk = metrics().get("leakage_balanced_accuracy")
+    if lk:
         st.markdown("**Shortcut classifiers** (no forensic features; 5-fold grouped CV on the development set):")
-        piv = lk.pivot_table(index="feature_set", columns="protocol", values="balanced_accuracy_mean").round(3)
-        st.dataframe(piv[[c for c in ("A", "C", "B85", "R85") if c in piv]], width="stretch")
+        st.dataframe(pd.DataFrame(lk).T.round(3).rename_axis("feature_set"), width="stretch")
         st.caption("Balanced accuracy (0.5 = chance). A: files as released; C: JPEG files only; "
                    "B85: every image re-saved as JPEG Q85; R85: downscaled x0.75, then re-saved.")
 
