@@ -65,6 +65,8 @@ The original proposal is [`GroupJ_Patel_Gupta_proposal.pdf`](GroupJ_Patel_Gupta_
 ├── report/
 │   ├── REPORT.md                     readable write-up
 │   └── Patel_ImageForgeryDetection_report.pdf   IEEE-format final report
+├── submissions/
+│   └── phase2_submission/            course Phase 2 checkpoint: GroupJ_Patel_Gupta_Phase2 (.ipynb + .pdf)
 └── tests/                            209 automated tests
 ```
 
