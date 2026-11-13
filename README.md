@@ -65,9 +65,13 @@ The original proposal is [`GroupJ_Patel_Gupta_proposal.pdf`](GroupJ_Patel_Gupta_
 ├── report/
 │   ├── REPORT.md                     readable write-up
 │   └── Patel_ImageForgeryDetection_report.pdf   IEEE-format final report
-├── build/phase2/                     Phase 2 notebook, PDF and notebook builder (packed into the Phase 2 zip)
+├── build/
+│   ├── phase2/                       Phase 2 notebook, PDF and notebook builder (packed into the Phase 2 zip)
+│   └── phase3/                       Phase 3 notebook and PDF (packed into the Phase 3 zip)
 ├── submissions/
-│   └── phase2_submission/            course Phase 2 checkpoint, one zip: notebook + PDF + code to reproduce them
+│   ├── phase2_submission/            course Phase 2 checkpoint, one zip: notebook + PDF + code to reproduce them
+│   └── phase3_submission/            course Phase 3 checkpoint, one zip: notebook + PDF + supporting files + project
+│                                     (111 MB, above GitHub's file limit: rebuild with scripts/package_phase3.py)
 └── tests/                            209 automated tests
 ```
 

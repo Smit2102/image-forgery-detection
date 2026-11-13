@@ -53,3 +53,9 @@ notebooks/.gitkeep
 # only the notebooks and PDFs are tracked, for review
 build/*
 !build/phase2/
+!build/phase3/
+build/phase3/*
+!build/phase3/GroupJ_Patel_Gupta_Phase3.ipynb
+!build/phase3/GroupJ_Patel_Gupta_Phase3.pdf
+# the Phase 3 submission zip (111 MB) is above GitHub's 100 MB file limit; it is rebuilt by scripts/package_phase3.py
+submissions/phase3_submission/GroupJ_Phase3.zip
