@@ -56,13 +56,19 @@ It is evaluated against the dataset's ground-truth masks.
 """)
 
 code(r"""
-# ---- environment: everything is relative to this notebook's folder, no paths need editing ------------------
+# ---- environment: the notebook finds the project folder itself, no paths need editing ----------------------
 import sys, json, warnings
 from pathlib import Path
 from types import SimpleNamespace
 
-HERE = Path.cwd()
-assert (HERE / "src" / "forgery").exists(), "Start Jupyter from inside the submission folder (the one that contains src/)."
+import os
+NB_DIR = Path.cwd()                                    # the folder this notebook is in
+# the project (code, models, saved results): next to the notebook, or in ../Project when the submission zip is used
+HERE = next((p for p in (NB_DIR, NB_DIR.parent / "Project") if (p / "src" / "forgery").exists()), None)
+assert HERE is not None, "Keep the Submission and Project folders of GroupJ_Phase3.zip side by side (see README.txt)."
+# the supporting images: Submission/supporting_images in the zip, sample_images/ next to the code otherwise
+IMAGES = next(p for p in (NB_DIR / "supporting_images", HERE / "sample_images") if p.exists())
+os.chdir(HERE)                                         # every other path below is relative to the project folder
 sys.path.insert(0, str(HERE / "src"))
 
 import numpy as np, pandas as pd, cv2
@@ -89,7 +95,7 @@ TUNED = module_params(cfg, "R")                        # per-module parameters o
 MODULES = build_modules(params=TUNED)                  # the eight forensic modules, in pipeline order
 print("modules:", [m.name for m in MODULES])
 
-S = pd.read_csv("sample_images/samples.csv").set_index("name")      # 14 CASIA + 22 MICC-F220 sample images
+S = pd.read_csv(IMAGES / "samples.csv").set_index("name")      # 14 CASIA + 22 MICC-F220 sample images
 MET = json.loads(Path("supporting/metrics.json").read_text())       # saved results of the full experiments
 CACHE = json.loads(Path("precomputed/results.json").read_text())    # cached detector outputs (fallback only)
 """)
@@ -99,7 +105,7 @@ code(r"""
 LIVE = False
 try:
     M = E.load_models("R")                                           # random forest + type model + localiser
-    _probe = E.analyse(HERE / "sample_images" / S.loc["cm_mirror", "file"], M, cfg)
+    _probe = E.analyse(IMAGES / S.loc["cm_mirror", "file"], M, cfg)
     LIVE = _probe.verdict is not None
 except Exception as exc:
     print(f"Could not run the saved models here ({type(exc).__name__}); using cached outputs in precomputed/.")
@@ -144,7 +150,7 @@ code(r"""
 def sample_paths(name):
     r = S.loc[name]
     mask = r["mask"] if isinstance(r["mask"], str) and r["mask"] else None
-    return HERE / "sample_images" / r["file"], (HERE / "sample_images" / mask if mask else None)
+    return IMAGES / r["file"], (IMAGES / mask if mask else None)
 
 def show(images, titles, cmaps=None, suptitle=None, width=3.6, height=3.0, ncols=None):
     # one or more rows of titled panels
@@ -238,7 +244,7 @@ md(r"""
 Techniques from the Phase 1 proposal that did **not** survive our experiments (Harris corners, the 3×3 Laplacian filter, 32×32 patches, Canny 50/150) are discussed in Sections 6 and 8.
 
 ### 4.1 Which version is final
-**The pipeline described in this notebook is the final version, and it is frozen.** It was fixed before the held-out test set was used (24 September 2026). The test set was then evaluated once, and nothing in the pipeline was changed afterwards: the eight feature modules, their parameters (`config.yaml`) and all trained models are the ones that produced the test results in Section 7.5. The check below proves it: it compares the code and model files in this folder with the fingerprints recorded at the time of the test evaluation.
+**The pipeline described in this notebook is the final version, and it is frozen.** It was fixed before the held-out test set was used (24 September 2026). The test set was then evaluated once, and nothing in the pipeline was changed afterwards: the eight feature modules, their parameters (`config.yaml`) and all trained models are the ones that produced the test results in Section 7.5. The check below proves it: it compares the code and model files in the project folder with the fingerprints recorded at the time of the test evaluation.
 
 Our Phase 2 notebook called the pipeline frozen and, in its *Next steps*, also listed things we planned to improve. That was ambiguous, so here is what became of each item. **None of the items below changed the frozen pipeline.**
 
@@ -255,7 +261,7 @@ The improvements in Section 8 (*Possible future improvements*) are ideas for fut
 """)
 
 code(r"""
-# ---- fingerprint check: is the pipeline in this folder the one that was evaluated on the test set? ---------
+# ---- fingerprint check: is the pipeline in the project folder the one evaluated on the test set? ----------
 import hashlib
 from forgery.pipeline import feature_code_sha1, resolved_params
 
@@ -266,7 +272,7 @@ TEST_SUMMARY = json.loads(Path("supporting/phase7_summary.json").read_text())
 
 rows = []                                                                   # (item, value here, value recorded, same?)
 def add(item, here, recorded, show=lambda v: v[:12]):
-    rows.append({"Item": item, "In this folder": show(here), "Recorded at the test evaluation": show(recorded), "Same?": "yes" if here == recorded else "NO"})
+    rows.append({"Item": item, "In the project folder": show(here), "Recorded at the test evaluation": show(recorded), "Same?": "yes" if here == recorded else "NO"})
 
 add("Feature-module source code (8 techniques + image I/O)", feature_code_sha1(), REC["feature_code_sha1"])
 for name in ("forgery", "type", "localizer"):
@@ -281,7 +287,7 @@ if Path("data/test_split.sha256").exists():                                 # pr
 check = pd.DataFrame(rows)
 display(Markdown(check.to_markdown(index=False)))
 print(f"Test evaluation: run no. {REC['run_number']} on {REC['time'][:10]}; {sum(e['event'] == 'start' for e in LOG)} run(s) of the test set in total.")
-assert (check["Same?"] == "yes").all(), "the pipeline in this folder differs from the one evaluated on the test set"
+assert (check["Same?"] == "yes").all(), "the pipeline in the project folder differs from the one evaluated on the test set"
 print("All fingerprints match: the pipeline in this notebook is the frozen version that produced the test results in Section 7.5.")
 """)
 
