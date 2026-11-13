@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
-import torch
 
-from forgery import cnn
+torch = pytest.importorskip("torch")        # the CNN baseline is optional: skip these tests without PyTorch
+
+from forgery import cnn  # noqa: E402
 
 CPU = torch.device("cpu")
 
