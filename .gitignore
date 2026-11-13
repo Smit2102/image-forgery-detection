@@ -48,3 +48,8 @@ report/KNOWN_ISSUES.md
 .vscode/
 app/.streamlit/
 notebooks/.gitkeep
+
+# working copies the submission zips are built from (the zips in submissions/ are the deliverables);
+# only the notebooks and PDFs are tracked, for review
+build/*
+!build/phase2/
